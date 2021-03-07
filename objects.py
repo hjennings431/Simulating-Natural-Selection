@@ -127,12 +127,17 @@ class Creature:
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
     def can_eat_tile(self, L_food, x_coord, y_coord):
         type_of_current_tile = L_food[x_coord, y_coord].food_type
+        neck_val = self.return_neck_type()
         if type_of_current_tile == 1:
             return(True)
         if type_of_current_tile == 2:
-            return(self.long_neck)
+            if neck_val >= 0.7:
+                return(True)
         if type_of_current_tile == 3:
-            return(not(self.long_neck))
+            if neck_val <= 0.6:
+                return(True)
+            if neck_val >= 0.9:
+                return(True)
         else:
             return(False)
     # function to eat the food at a tile passed to it and update the food array and creatures fitness
@@ -152,10 +157,6 @@ class Food:
     # function to update food type
     def update_food_type(self, new_food_type):
         self.food_type = new_food_type
-    #function to return id ((x,y) coords)
-    def return_id(self):
-        return(self.id)
-#  Class for the specific tiles that make up the world
 
 #function to generate the food onto the world
 def generate_food(all_coord_combos, food_pct, tall_food_pct, bush_food_pct, L_food):
@@ -190,9 +191,9 @@ def mutation(genome):
     for i in range(5):
         #roll a number to see if the stat will go up or down if rolled
         plus_minus = random.randint(0,1)
-        # mut chance at 0.5%
-        m_chance = random.randint(1,1000)
-        if m_chance <= 1000:
+        # mut chance at 1%
+        m_chance = random.randint(1,100)
+        if m_chance <= 1:
             # 0 = change neck value
             if i == 0:
                 if plus_minus == 1:
@@ -272,6 +273,7 @@ def mutation(genome):
     return(genome)
 
 def crossover(copy_new_population, XW, YW):
+    #global c1_sight, c1_speed, c1_str, c1_stam, c1_neck, c2_sight, c2_speed, c2_str, c2_stam, c2_neck
     children = []
     for i in range(int(len(copy_new_population)/2)):
         r_range = len(copy_new_population) - 1
@@ -289,44 +291,99 @@ def crossover(copy_new_population, XW, YW):
             p1_or_2 = random.randint(0,100)
             # neck length
             if i == 0:
-                if p1_or_2 >= 50:
+                if p1_or_2 >= 75:
                     c1_neck = p2.return_neck_type()
                     c2_neck = p1.return_neck_type()
-                else:
+                if p1_or_2 <= 25:
                     c1_neck = p1.return_neck_type()
                     c2_neck = p2.return_neck_type()
+                else:
+                    if p1.return_neck_type() <= p2.return_neck_type():
+                        range_bot = int((p1.return_neck_type() * 100))
+                        range_top = int((p2.return_neck_type() * 100))
+                    else:
+                        range_bot = int((p2.return_neck_type() *100))
+                        range_top = int((p1.return_neck_type() *100))
+                    c1_neck = random.randint(range_bot, range_top)
+                    c2_neck = random.randint(range_bot, range_top)
+                    c1_neck = round((c1_neck / 100), 2)
+                    c2_neck = round((c2_neck / 100), 2)
             # vision
             if i == 1:
-                if p1_or_2 >= 50:
+                if p1_or_2 >= 75:
                     c1_sight = p2.return_eagle_eye()
                     c2_sight = p1.return_eagle_eye()
-                else:
+                if p1_or_2 <= 25:
                     c1_sight = p1.return_eagle_eye()
                     c2_sight = p2.return_eagle_eye()
+                else:
+                    if p1.return_eagle_eye() <= p2.return_eagle_eye():
+                        range_bot = int((p1.return_eagle_eye() * 100))
+                        range_top = int((p2.return_eagle_eye() * 100))
+                    else:
+                        range_bot = int((p2.return_eagle_eye() * 100))
+                        range_top = int((p1.return_eagle_eye() * 100))
+                    c1_sight = random.randint(range_bot, range_top)
+                    c2_sight = random.randint(range_bot, range_top)
+                    c1_sight = round((c1_sight / 100), 2)
+                    c2_sight = round((c2_sight / 100), 2)
             # speed
             if i == 2:
-                if p1_or_2 >= 50:
+                if p1_or_2 >= 75:
                     c1_speed = p2.return_speed()
                     c2_speed = p1.return_speed()
-                else:
+                if p1_or_2 <= 25:
                     c1_speed = p1.return_speed()
                     c2_speed = p2.return_speed()
+                else:
+                    if p1.return_speed() <= p2.return_speed():
+                        range_bot = int((p1.return_speed() * 100))
+                        range_top = int((p2.return_speed() * 100))
+                    else:
+                        range_bot = int((p2.return_speed() * 100))
+                        range_top = int((p1.return_speed() * 100))
+                    c1_speed = random.randint(range_bot, range_top)
+                    c2_speed = random.randint(range_bot, range_top)
+                    c1_speed = round((c1_speed / 100), 2)
+                    c2_speed = round((c2_speed / 100), 2)
             # stamina
             if i == 3:
-                if p1_or_2 >= 50:
+                if p1_or_2 >= 75:
                     c1_stam = p2.return_max_stam()
                     c2_stam = p1.return_max_stam()
-                else:
+                if p1_or_2 <= 25:
                     c1_stam = p1.return_max_stam()
                     c2_stam = p2.return_max_stam()
+                else:
+                    if p1.return_max_stam() <= p2.return_max_stam():
+                        range_bot = int((p1.return_max_stam() * 100))
+                        range_top = int((p2.return_max_stam() * 100))
+                    else:
+                        range_bot = int((p2.return_max_stam() * 100))
+                        range_top = int((p1.return_max_stam() * 100))
+                    c1_stam = random.randint(range_bot, range_top)
+                    c2_stam = random.randint(range_bot, range_top)
+                    c1_stam = round((c1_stam / 100), 2)
+                    c2_stam = round((c2_stam / 100), 2)
             # strength
             if i == 4:
-                if p1_or_2 >= 50:
+                if p1_or_2 >= 75:
                     c1_str = p2.return_str()
                     c2_str = p1.return_str()
-                else:
+                if p1_or_2 <=25:
                     c1_str = p1.return_str()
                     c2_str = p2.return_str()
+                else:
+                    if p1.return_str() <= p2.return_str():
+                        range_bot = int((p1.return_str() * 100))
+                        range_top = int((p2.return_str() * 100))
+                    else:
+                        range_bot = int((p2.return_str() * 100))
+                        range_top = int((p1.return_str() * 100))
+                    c1_str = random.randint(range_bot, range_top)
+                    c2_str = random.randint(range_bot, range_top)
+                    c1_str = round((c1_str / 100), 2)
+                    c2_str = round((c2_str / 100), 2)
         c1 = Creature(c1_neck, c1_sight, c1_speed, c1_stam, (c1_stam*move_multi), c1_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)))
         c2 = Creature(c2_neck, c2_sight, c2_speed, c2_stam, (c2_stam * move_multi), c2_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)))
         c1 = mutation(c1)
@@ -338,25 +395,30 @@ def crossover(copy_new_population, XW, YW):
     return(children)
 
 #gen algo to get a new pop
-def genetic(Population, fittest_creature, XW, YW):
+def genetic(Population, NoOfBobs, fittest, XW, YW):
     new_population = []
     copy = []
     # sort the pop based on fitness
     Population.sort(key = attrgetter('fitness'), reverse=True)
     #check for new best
-    if Population[0].return_fitness() > fittest_creature.return_fitness():
-        fittest_creature = Population[0]
-        print("I'm the fittest!")
-        print("neck", fittest_creature.return_neck_type())
-        print("sight", fittest_creature.return_eagle_eye())
-        print("speed", fittest_creature.return_eagle_eye())
-        print("stamina", fittest_creature.return_max_stam())
-        print("strength", fittest_creature.return_str())
-    cutoff = round(len(Population) / 2)
+    if Population[0].return_fitness() > fittest.return_fitness():
+        #print("Pop 0",Population[0].return_fitness())
+        p_hold = Population[0].return_max_stam()
+        fittest = Creature(Population[0].return_neck_type(), Population[0].return_eagle_eye(), Population[0].return_speed(), Population[0].return_max_stam(), (p_hold*255), Population[0].return_str(), Population[0].return_fitness(), (0,0))
+        print("I'm the New fittest!")
+        print("neck", fittest.return_neck_type())
+        print("sight", fittest.return_eagle_eye())
+        print("speed", fittest.return_eagle_eye())
+        print("stamina", fittest.return_max_stam())
+        print("strength", fittest.return_str())
+        print("fitness", fittest.return_fitness())
+    cutoff = round(NoOfBobs / 2)
+    if NoOfBobs > len(Population):
+        creatures_to_add = NoOfBobs - len(Population)
+        Population = generate_creatures(creatures_to_add, XW, YW, Population)
     # passing the top 50% solutions down to the next generation (They survived)
     for i in range(cutoff):
         new_population.append(Population[i])
-        new_population[i].update_fitness(0)
     #performing crossover and mutation to get the last 50% of the population
     for i in range(len(new_population)):
         copy.append(new_population[i])
@@ -367,14 +429,21 @@ def genetic(Population, fittest_creature, XW, YW):
     for i in range(len(new_population)):
         stam_val = new_population[i].return_max_stam()
         new_population[i].update_stam(stam_val)
+
     #replacing the old pop
     Population = new_population
-    return(Population, fittest_creature)
+    return(Population, fittest)
 
 def generate_creatures(num_of_creatures, XW, YW, Population):
     shortlist = []
     for i in range(num_of_creatures):
-        neck_val = random.randint(1,10) / 10
+        neck_roll = random.randint(1,100)
+        if neck_roll <=40:
+            neck_val = random.randint(1,3) / 10
+        if neck_roll >= 95:
+            neck_val = random.randint(8,10) / 10
+        else:
+            neck_val = random.randint(4,7) / 10
         sight_val = random.randint(1,10) / 10
         speed_val = random.randint(1,10) / 10
         stam_val = random.randint(1,10) / 10
@@ -384,3 +453,9 @@ def generate_creatures(num_of_creatures, XW, YW, Population):
         Population.append(shortlist[i])
     return Population
 
+def get_average_neck(Population):
+    avg = 0
+    for i in range(len(Population)):
+        avg += Population[i].return_neck_type()
+    avg /= len(Population)
+    return(avg)
