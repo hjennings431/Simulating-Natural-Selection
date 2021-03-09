@@ -1,10 +1,10 @@
-import numpy as np
-creature_colour = (0,255,0)                 # Creature Colour
+creature_colour = (0, 255, 255)                 # Creature Colour
 multiple_creature_colour = (255,255,255)    # Multiple occupancy tile colour
 no_food_colour = (0,0,0)                    # Blank tile colour
-food_colour = (64,64,64)                    # Normal food tile colour
-tallfood_colour = (64,0,0)                  # Tall food tile colour
-bushfood_colour = (255,32,0)                # Bush food tile colour
+food_colour = (51,204,51)                    # Normal food tile colour
+tallfood_colour = (20,82,20)                 # Tall food tile colour
+bushfood_colour = (112,219,112)              # Bush food tile colour
+hazard_color = (255,0,0)                    # Hazard colour
 background_color = (0,0,0)                  # Define the background color
 grid_color = (50,50,50)                     # Define the grid line color
 border_color = (255,255,255)                # Define the line color
@@ -28,11 +28,12 @@ attr1_label = "Neck Length"                 # Attribute 1 graph label
 attr2_color = (255,255,128)                 # Attribute 2 graph color
 attr2_label = "Strength"                    # Attribute 2 graph label
 attr3_color = (255,128,255)                 # Attribute 3 graph color
-attr3_label = "Fitness"                     # Attribute 3 graph label
-attr4_color = (128,128,255)                 # Attribute 3 graph color
-attr4_label = "Stamina"                     # Attribute 3 graph label
-attr5_color = (128, 255, 128)               # Attribute 3 graph color
-attr5_label = "Strength"                   # Attribute 3 graph label
+attr3_label = "Vision"                      # Attribute 3 graph label
+attr4_color = (128,128,255)                 # Attribute 4 graph color
+attr4_label = "Stamina"                     # Attribute 4 graph label
+attr5_color = (128, 255, 128)               # Attribute 5 graph color
+attr5_label = "Speed"                       # Attribute 5 graph label
+
 
 ############################################################################################################
 # Procedure to draw the grid for the display
@@ -96,10 +97,11 @@ def draw_food(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 x = bdl + size_adj + (xy[0] * stepx)
                 y = bdt + size_adj + (xy[1] * stepy)
                 pygame.draw.rect(scn, fc, (x, y, stepx - size_adj, stepy - size_adj))
+
 ############################################################################################################
 # Procedure to draw the creatures
 ############################################################################################################
-def draw_creatures(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, pop, dg ):
+def draw_creatures(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, pop, dg):
 # Adjust the size deoending if there's a grid
     if (dg): size_adj=1
     else: size_adj=0
@@ -140,6 +142,24 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     img = font.render('Tree Food', True, key_label_color); scn.blit(img, (xx+20, yy-4))
     yy += stepy; pygame.draw.rect(scn, bushfood_colour, (xx, yy, 10, 10))
     img = font.render('Bush Food', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy; pygame.draw.rect(scn, hazard_color, (xx, yy, 10, 10))
+    img = font.render('Hazard', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+
+
+def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
+    stepy = key_step
+    xx = w-(bdr-20)
+    yy = round((bdt + (stepy / 2)) + 200)
+    yy = round((bdt + (stepy / 2)) + 200)
+    pygame.draw.rect(scn, background_color, (xx, yy, (xx+200), (yy+120)))
+    font = pygame.font.SysFont(None, 24)
+    img = font.render('Fittest Creature:', True, key_label_color); scn.blit(img, (xx, yy)); yy+=20
+    img = font.render('Neck: {0}'.format(fittest.return_neck_type()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Vision: {0}'.format(fittest.return_eagle_eye()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Speed: {0}'.format(fittest.return_speed()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Stamina: {0}'.format(fittest.return_max_stam()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Strength: {0}'.format(fittest.return_str()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Fitness: {0}'.format(fittest.return_fitness()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
 ############################################################################################################
 # Procedure to draw graph axis
 ############################################################################################################
@@ -167,23 +187,24 @@ def draw_axis(pygame, scn, w, h, bdr, bdb):
 # Attribute 2 Label
     yy+=stepy
     pygame.draw.rect(scn, attr2_color, (xx, yy, 10, 10))
-    img = font.render(attr2_label, True, axis_label_color);
+    img = font.render(attr2_label, True, axis_label_color)
     scn.blit(img, (xx + 20, yy - 4))
 # Attribute 3 Label
     yy += stepy
     pygame.draw.rect(scn, attr3_color, (xx, yy, 10, 10))
-    img = font.render(attr3_label, True, axis_label_color);
+    img = font.render(attr3_label, True, axis_label_color)
     scn.blit(img, (xx + 20, yy - 4))
 # Attribute 4 Label
     yy += stepy
     pygame.draw.rect(scn, attr4_color, (xx, yy, 10, 10))
-    img = font.render(attr4_label, True, axis_label_color);
+    img = font.render(attr4_label, True, axis_label_color)
     scn.blit(img, (xx + 20, yy - 4))
 # Attribute 5 Label
     yy += stepy
     pygame.draw.rect(scn, attr5_color, (xx, yy, 10, 10))
-    img = font.render(attr5_label, True, axis_label_color);
+    img = font.render(attr5_label, True, axis_label_color)
     scn.blit(img, (xx + 20, yy - 4))
+
 ############################################################################################################
 # Procedure to update the graph
 ############################################################################################################
