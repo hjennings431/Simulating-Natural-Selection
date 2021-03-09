@@ -5,6 +5,7 @@ import numpy as np
 from Display import *
 from Objects import *
 from pygame_widgets import *
+from operator import attrgetter
 
 running = True
 run_sim = True
@@ -28,14 +29,16 @@ def starthit():
         last_plot3 = (-1, -1)
         last_plot4 = (-1, -1)
         last_plot5 = (-1, -1)
+        Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen)
         gens_left = Generations
-        Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population)
         count = TurnsPerGen
     pause_sim = False
+
 def stophit():
     global run_sim; run_sim=False
     global stop_sim; stop_sim=True
     global pause_sim; pause_sim = False
+
 def pausehit():
     global pause_sim; pause_sim=True
 
@@ -112,7 +115,7 @@ possible_x = []
 possible_y = []
 L_food = np.empty((XWorld,YWorld), dtype=object)
 # setting up a dummy fittest creature for the genetic algorithm to compare to
-fittest_creature =Creature(0.8, 0.8, 0.8, 0.9, 59, 0.5, 0,(0,0))
+fittest_creature =Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False)
 # adding all possible x and y coords to 2 seperate lists
 for i in range(XWorld):
     possible_x.append(i)
@@ -127,7 +130,7 @@ all_coord_combos = [(a,b) for a in possible_x for b in possible_y]
 # initialising the first food and population
 reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
-Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population)
+Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen)
 
 
 # Just keep running until some event(s)
@@ -135,15 +138,13 @@ count = TurnsPerGen
 gens_left = Generations
 while running:
     if (run_sim and not pause_sim):
+        Population.sort(key=attrgetter('speed'), reverse=True)
         for j in range(MovesPerTurn):
             for i in range(len(Population)):
                 Population[i].update_position(XWorld, YWorld, WldStop, L_food)
-
             count -=1
         # check the turns per gen hasn't reached 0 or sliders have been updated
-        if (count < 0 or stop_sim):
-            #reset stop
-            stop_sim = False
+        if count < 0:
             # Get the latest values from the sliders
             NoOfBobs = NoOfBobs_slide.getValue()
             TurnsPerGen = TurnsPerGen_slide.getValue()
@@ -151,27 +152,26 @@ while running:
             TallFoodPct = TallFoodPct_slide.getValue()
             BushFoodPct = BushFoodPct_slide.getValue()
             # delete the old pop and create the new one
-            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld)
+            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen)
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
             reset_food(all_coord_combos, L_food)
             generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
             count = TurnsPerGen
             gens_left -= 1
-
             if (gens_left < 0):
                 run_sim = False
 
         attr1 = get_average_neck(Population)
         last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr1, attr1_color, last_plot1)
-        attr2 = (random.randint(0,20)/100)+0.7
+        attr2 = get_average_str(Population)
         #last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr2, attr2_color, last_plot2)
-        attr3 = (random.randint(0,20)/100)+0.3
+        attr3 = get_average_vision(Population)
         #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
-        attr4 = (random.randint(0,20)/100)+0.6
-        #last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr4, attr4_color, last_plot4)
-        attr5 = (random.randint(0,20)/100)+0.5
-        #last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr5, attr5_color, last_plot5)
+        attr4 = get_average_stam(Population)
+        last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr4, attr4_color, last_plot4)
+        attr5 = get_average_speed(Population)
+        last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr5, attr5_color, last_plot5)
 
         # update the screen to match the new state of the world
         draw_grid(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, DrawGrid)
@@ -179,6 +179,7 @@ while running:
         draw_creatures(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, Population, DrawGrid)
         draw_border(pygame, Screen, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom )
         draw_key(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom)
+        draw_fittest(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, fittest_creature)
 
     pygame.display.flip()
     pygame.time.wait(DisplaySpeed) # Higher for slower animation
