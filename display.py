@@ -135,7 +135,7 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     pygame.draw.rect(scn, creature_colour, (xx, yy, 10, 10))
     img = font.render('Creatures', True, key_label_color); scn.blit(img, (xx+20, yy-4))
     yy += stepy; pygame.draw.rect(scn, multiple_creature_colour, (xx, yy, 10, 10))
-    img = font.render('Creature Fight', True, key_label_color); scn.blit(img, (xx+20, yy-4))
+    img = font.render('Multiple Creatures', True, key_label_color); scn.blit(img, (xx+20, yy-4))
     yy += stepy; pygame.draw.rect(scn, food_colour, (xx, yy, 10, 10))
     img = font.render('Normal Food', True, key_label_color); scn.blit(img, (xx+20, yy-4))
     yy += stepy; pygame.draw.rect(scn, tallfood_colour, (xx, yy, 10, 10))
@@ -145,13 +145,12 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     yy += stepy; pygame.draw.rect(scn, hazard_color, (xx, yy, 10, 10))
     img = font.render('Hazard', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
 
-
+# Draws the stats of the fittest creature
 def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
     stepy = key_step
     xx = w-(bdr-20)
     yy = round((bdt + (stepy / 2)) + 200)
-    yy = round((bdt + (stepy / 2)) + 200)
-    pygame.draw.rect(scn, background_color, (xx, yy, (xx+200), (yy+120)))
+    pygame.draw.rect(scn, background_color, (xx, yy, (xx+100), (yy+100)))
     font = pygame.font.SysFont(None, 24)
     img = font.render('Fittest Creature:', True, key_label_color); scn.blit(img, (xx, yy)); yy+=20
     img = font.render('Neck: {0}'.format(fittest.return_neck_type()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
