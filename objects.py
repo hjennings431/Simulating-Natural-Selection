@@ -64,7 +64,7 @@ class Creature:
         self.remaining_moves = new_moves
 
     # function to determine the best move and then make the move
-    def update_position(self, XL, YL, Stop, L_food):
+    def update_position(self, XL, YL, Stop, L_food, L_hazards):
 
         global can_eat
         can_eat = False
@@ -114,6 +114,7 @@ class Creature:
         # Create new position
             new_pos_x = self.position[0] + xpossible[direction]
             new_pos_y = self.position[1] + ypossible[direction]
+
         # Stop at world edge
             if (Stop):
                 if (new_pos_x < 0):     new_pos_x = 0
@@ -131,10 +132,11 @@ class Creature:
 
             if ate_food_flag:
                 self.eat_food(L_food, new_pos_x, new_pos_y)
-
+        # Resolves hazards on new tile
+            self.check_hazard(L_hazards, new_pos_x, new_pos_y)
             if self.speed <= 0.2:
                 pass
-            if self.speed >= 0.8:
+            if self.speed >= 0.7:
                 self.remaining_moves -=2
             else:
                 self.remaining_moves -=1
@@ -142,6 +144,46 @@ class Creature:
             if self.remaining_moves <= 0:
                 self.can_move = False
 
+    # function to check current tile for hazards
+    def check_hazard(self, L_hazards, x_coord, y_coord):
+        hazard_type = L_hazards[x_coord, y_coord].hazard_type
+        if hazard_type == 0:
+            pass
+        if hazard_type == 1: # Predators in trees, affects long neck creatures only
+            if self.long_neck >= 0.7:
+                self.fitness -=1
+        if hazard_type == 2: # Tar pits that affect creatures with higher stamina more
+            if self.max_stamina <=0.6:
+                self.fitness -= 1
+            if self.max_stamina > 0.9:
+                self.fitness -= 3
+                self.remaining_moves -= 1
+            else:
+                self.fitness -= 2
+                self.remaining_moves -= 1
+        if hazard_type == 3: # Thorns that affect creatures with higher speed more
+            if self.speed <= 0.6:
+                self.fitness -= 1
+            if self.speed > 0.9:
+                self.fitness -= 3
+            else:
+                self.fitness -= 2
+        if hazard_type == 4: # toxic gases that affect creatures with higher vision more
+            if self.eagle_eye <= 0.6:
+                self.fitness -= 1
+            if self.eagle_eye > 0.9:
+                self.fitness -= 3
+            else:
+                self.fitness -= 2
+        if hazard_type == 5: # Predators on the land that affect creatures with higher strength more
+            if self.strength <= 0.6:
+                self.fitness -= 1
+            if self.strength > 0.9:
+                self.fitness -= 3
+            else:
+                self.fitness -= 2
+        if self.fitness < 0:
+            self.fitness = 0
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
     def can_eat_tile(self, L_food, x_coord, y_coord):
         type_of_current_tile = L_food[x_coord, y_coord].food_type
@@ -161,8 +203,9 @@ class Creature:
     def eat_food(self, L_food, x_coord,y_coord):
         self.fitness +=1
         L_food[x_coord, y_coord].update_food_type(0)
-
-#common class for the food(The world is backed by XWorld*YWorld instances of these
+############################################################################################################
+# Common class for the food
+############################################################################################################
 class Food:
     def __init__(self, id, food_type):
         self.id = id # xy coords for the tile the food will be located on
@@ -173,10 +216,10 @@ class Food:
     # function to update food type
     def update_food_type(self, new_food_type):
         self.food_type = new_food_type
-
-#function to generate the food onto the world
+############################################################################################################
+# Function to generate the food onto the world
+############################################################################################################
 def generate_food(all_coord_combos, food_pct, tall_food_pct, bush_food_pct, L_food):
-
 # For all tiles
     for i in range(len(all_coord_combos)):
         food_type = 0
@@ -195,14 +238,53 @@ def generate_food(all_coord_combos, food_pct, tall_food_pct, bush_food_pct, L_fo
     # Update the food
         p_holder = all_coord_combos[i]
         L_food[p_holder[0], p_holder[1]].update_food_type(food_type)
-
+############################################################################################################
+# Function to reset the food
+############################################################################################################
 def reset_food(all_coord_combos, L_food):
     for i in range(len(all_coord_combos)):
         p_holder = all_coord_combos[i]
         input_food = Food(p_holder, 0)
         L_food[p_holder[0], p_holder[1]] = input_food
 
-# mutation function
+############################################################################################################
+# Common class for the hazards
+############################################################################################################
+class Hazards:
+    def __init__(self, id, hazard_type):
+        self.id = id # xy coords for the tile the food will be located on
+        self.hazard_type = hazard_type
+    #function to get the hazards
+    def return_hazard(self):
+        return(self.hazard_type)
+    # function to update hazards
+    def update_hazard(self, new_hazard_type):
+        self.hazard_type = new_hazard_type
+############################################################################################################
+# Function to generate a hazard set
+############################################################################################################
+def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards):
+# For all tiles
+    for i in range(len(all_coord_combos)):
+        has_hazard = random.randint(1,100)
+    # Decide if the tile has a hazard and what type it is
+        hazard_type = 0
+        if (has_hazard <= hazard_pct):
+                hazard_type = random.randint(1, hazard_types)
+    # Update the food
+        p_holder = all_coord_combos[i]
+        L_hazards[p_holder[0], p_holder[1]].update_hazard(hazard_type)
+############################################################################################################
+# Function to reset all hazards
+############################################################################################################
+def reset_hazards(all_coord_combos, L_hazards):
+    for i in range(len(all_coord_combos)):
+        p_holder = all_coord_combos[i]
+        input_hazard = Hazards(p_holder, 0)
+        L_hazards[p_holder[0], p_holder[1]] = input_hazard
+############################################################################################################
+# Mutation function
+############################################################################################################
 def mutation(genome, TurnsPerGen):
     for i in range(5):
         #roll a number to see if the stat will go up or down if rolled
@@ -290,7 +372,9 @@ def mutation(genome, TurnsPerGen):
                 genome.update_str(new_val)
     # return  the mutated 'genome'
     return(genome)
-
+############################################################################################################
+# CrossOver function
+############################################################################################################
 def crossover(copy_new_population, XW, YW, TurnsPerGen):
     children = []
     for i in range(int(len(copy_new_population)/2)):
@@ -433,8 +517,9 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen):
         del copy_new_population[p1_index]
         del copy_new_population[p2_index-1]
     return(children)
-
-#gen algo to get a new pop
+############################################################################################################
+# Genetic Algorithm to get a new Population
+############################################################################################################
 def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
     new_population = []
     copy = []
@@ -454,7 +539,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
     for i in range(cutoff):
         new_population.append(Population[i])
     for i in range(len(new_population)):
-        if new_population[i].return_fitness() != 0:
+        if new_population[i].return_fitness() > 5:
             copy2.append(new_population[i])
     if len(copy2) < len(new_population):
         copy2 = generate_creatures((len(new_population)-len(copy2)), XW, YW, copy2, False, TurnsPerGen, True)
@@ -476,7 +561,9 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
     #replacing the old pop
     Population = new_population
     return(Population, fittest)
-
+############################################################################################################
+# Function to generate a set of random creatures
+############################################################################################################
 def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen, Juiced):
     shortlist = []
     # More variance in creature values
@@ -592,42 +679,54 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
         shortlist[i].update_stam(shortlist[i].return_max_stam(), TurnsPerGen)
         Population.append(shortlist[i])
     return Population
-
+############################################################################################################
+# Get average neck length
+############################################################################################################
 def get_average_neck(Population):
     avg = 0
     for i in range(len(Population)):
         avg += Population[i].return_neck_type()
     avg /= len(Population)
     return(avg)
-
+############################################################################################################
+# Get average speed
+############################################################################################################
 def get_average_speed(Population):
     avg = 0
     for i in range(len(Population)):
         avg += Population[i].return_speed()
     avg /= len(Population)
     return(avg)
-
+############################################################################################################
+# Get average strength
+############################################################################################################
 def get_average_str(Population):
     avg = 0
     for i in range(len(Population)):
         avg += Population[i].return_str()
     avg /= len(Population)
     return(avg)
-
+############################################################################################################
+# Get average stamina
+############################################################################################################
 def get_average_stam(Population):
     avg = 0
     for i in range(len(Population)):
         avg += Population[i].return_max_stam()
     avg /= len(Population)
     return(avg)
-
+############################################################################################################
+# Get fitness
+############################################################################################################
 def get_average_fitness(Population):
     avg = 0
     for i in range(len(Population)):
         avg += Population[i].return_fitness()
     avg /= len(Population)
     return(avg)
-
+############################################################################################################
+# Get average vision
+############################################################################################################
 def get_average_vision(Population):
     avg = 0
     for i in range(len(Population)):
