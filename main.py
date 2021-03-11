@@ -55,13 +55,15 @@ Generations = 1000          # Define how many generations to run
 MovesPerTurn = 1            # Define how many moves to run per turn
 TurnsPerGen = 50            # Define turns per generation
 Width=1010; Height=810      # Define width and height of the display (700x700)
-XWorld=80; YWorld=80        # Define size fo the world
+XWorld=60; YWorld=60        # Define size of the world
 BdrLeft=210; BdrRight=200   # Define left and right borders
 BdrTop=10; BdrBottom=200    # Define top and bottom border
 DrawGrid = True             # Draw grid or not
 FoodPct = 20                # Percentage chance of food spawning on a tile
 TallFoodPct = 10            # Percentage chance food tile being tall food
 BushFoodPct = 5             # Percentage chance food tile being bush food
+HazardPct = 5               # Hazard Percentage
+HazardTypes = 5             # Number of Hazard types
 
 # Set up the screen and set the background color
 pygame.init()
@@ -102,18 +104,23 @@ BushFoodPct_WhereY = 300
 BushFoodPct_slide = Slider(Screen, 10, BushFoodPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=BushFoodPct,  handleColour=(slider_handle_color), colour=(slider_color))
 BushFoodPct_label = TextBox(Screen, 10, BushFoodPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 BushFoodPct_value = TextBox(Screen, 150, BushFoodPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
+# Tall Food Slider
+HazardPct_WhereY = 350
+HazardPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
+HazardPct_label = TextBox(Screen, 10, HazardPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
+HazardPct_value = TextBox(Screen, 150, HazardPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 
 draw_key(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom)
 
 # Set to -1 to restart graph plot
 last_plot1 = (-1, -1); last_plot2 = (-1, -1); last_plot3 = (-1, -1); last_plot4 = (-1, -1); last_plot5 = (-1, -1)
 draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
-# Draw the buttons
 
+# Draw the buttons
 StartButton = Button(Screen, 10, Height-BdrBottom-20, 60, 20, text='Start', fontSize=24, inactiveColour=button_bg_color, pressedColour=button_hit_color, radius=4, onClick=lambda: starthit())
 StopButton = Button(Screen, 75, Height-BdrBottom-20, 60, 20, text='Stop', fontSize=24, inactiveColour=button_bg_color, pressedColour=button_hit_color, radius=4, onClick=lambda: stophit())
 PauseButton = Button(Screen, 140, Height-BdrBottom-20, 60, 20, text='Pause', fontSize=24, inactiveColour=button_bg_color, pressedColour=button_hit_color, radius=4, onClick=lambda: pausehit())
-ResetFittestButton = Button(Screen, 60, Height-BdrBottom-50, 100, 20, text='Reset Fittest', fontSize=24, inactiveColour=button_bg_color, pressedColour=button_hit_color, radius=4, onClick=lambda: reset_fittest())
+ResetFittestButton = Button(Screen, 10, Height-BdrBottom-60, 190, 30, text='Reset Fittest', fontSize=32, inactiveColour=button_bg_color, pressedColour=button_hit_color, radius=4, onClick=lambda: reset_fittest())
 # Defining lists and 2d array for the world
 Population = []
 possible_x = []
@@ -127,16 +134,21 @@ for i in range(XWorld):
 for i in range(YWorld):
     possible_y.append(i)
 
-# creating a list with all possible coord combos
+# Creating a list with all possible coord combos
 all_coord_combos = [(a,b) for a in possible_x for b in possible_y]
 
 # function to reset all the food tiles so a new set of food can be spawned for the next gen
-
 # initialising the first food and population
 reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
+
+# Generate Population
 Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
 
+# Generate Hazards
+L_hazards = np.empty((XWorld,YWorld), dtype=object)
+reset_hazards(all_coord_combos, L_hazards)
+generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards)
 
 # Just keep running until some event(s)
 count = TurnsPerGen
@@ -147,7 +159,7 @@ while running:
         Population.sort(key=attrgetter('speed'), reverse=True)
         for j in range(MovesPerTurn):
             for i in range(len(Population)):
-                Population[i].update_position(XWorld, YWorld, WldStop, L_food)
+                Population[i].update_position(XWorld, YWorld, WldStop, L_food, L_hazards)
             count -=1
         # check the turns per gen hasn't reached 0 or sliders have been updated
         if count < 0:
@@ -157,30 +169,31 @@ while running:
             FoodPct = FoodPct_slide.getValue()
             TallFoodPct = TallFoodPct_slide.getValue()
             BushFoodPct = BushFoodPct_slide.getValue()
+            HazardPct = HazardPct_slide.getValue()
             # delete the old pop and create the new one
             Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen)
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
-            print(len(Population))
+        # Reset the food
             reset_food(all_coord_combos, L_food)
             generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
+        # Reset the Hazards
+            reset_hazards(all_coord_combos, L_hazards)
+            generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards)
             count = TurnsPerGen
             gens_left -= 1
             if (gens_left <= 0):
                 run_sim = False
             attr1 = get_average_neck(Population)
             last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom,(Generations/10), graph_points, attr1, attr1_color, last_plot1)
-            #print("im neck", attr1)
             attr2 = get_average_str(Population)
             #last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr2, attr2_color, last_plot2)
             attr3 = get_average_vision(Population)
             #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(Population)
             last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr4, attr4_color, last_plot4)
-            #print("im stamina", attr4)
             attr5 = get_average_speed(Population)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
-            #print("im speed", attr5)
             graph_points -= 1
 
         if graph_points <= 0:
@@ -188,13 +201,12 @@ while running:
             draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
             graph_points = Generations / 10
 
-
         # update the screen to match the new state of the world
         draw_grid(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, DrawGrid)
         draw_food(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, L_food, DrawGrid)
+        draw_hazard(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, L_hazards, DrawGrid)
         draw_creatures(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, Population, DrawGrid)
         draw_border(pygame, Screen, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom )
-        draw_key(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom)
         draw_fittest(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, fittest_creature)
 
     pygame.display.flip()
@@ -230,11 +242,17 @@ while running:
             TallFoodPct_slide.listen(event); TallFoodPct_slide.draw()
             TallFoodPct_value.setText(TallFoodPct_slide.getValue()); TallFoodPct_value.draw()
             TallFoodPct_label.setText("Tree Food %"); TallFoodPct_label.draw()
-        # Handle the Tall Food Slider
+        # Handle the Bush Food Slider
             pygame.draw.rect(Screen, background_color, (0, BushFoodPct_WhereY, BdrLeft, 45))
             BushFoodPct_slide.listen(event); BushFoodPct_slide.draw()
             BushFoodPct_value.setText(BushFoodPct_slide.getValue()); BushFoodPct_value.draw()
             BushFoodPct_label.setText("Bush Food %"); BushFoodPct_label.draw()
+        # Handle the Hazards Slider
+            pygame.draw.rect(Screen, background_color, (0, HazardPct_WhereY, BdrLeft, 45))
+            HazardPct_slide.listen(event); HazardPct_slide.draw()
+            HazardPct_value.setText(HazardPct_slide.getValue()); HazardPct_value.draw()
+            HazardPct_label.setText("Hazard %"); HazardPct_label.draw()
+
     # Handle the Start Button
         StartButton.listen(event); StartButton.draw()
     # Handle the Stop Button
