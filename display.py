@@ -20,7 +20,7 @@ button_hit_color = (255, 0, 0)              # Button clicked color
 axis_color = (255,255,255)                  # Color for the graph axis
 grid_graph_color = (50,50,50)               # Color for the graph grid
 grid_X_num = 32                             # Number of X grid lines
-grid_Y_num = 16                             # Number of Y grid lines
+grid_Y_num = 10                             # Number of Y grid lines
 axis_label_color = (255,255,255)            # Axis label color
 axis_space = 20                             # Axis spacing from border
 attr1_color = (255,128,128)                 # Attribute 1 graph color
@@ -97,7 +97,6 @@ def draw_food(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 x = bdl + size_adj + (xy[0] * stepx)
                 y = bdt + size_adj + (xy[1] * stepy)
                 pygame.draw.rect(scn, fc, (x, y, stepx - size_adj, stepy - size_adj))
-
 ############################################################################################################
 # Procedure to draw the creatures
 ############################################################################################################
@@ -142,10 +141,15 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     img = font.render('Tree Food', True, key_label_color); scn.blit(img, (xx+20, yy-4))
     yy += stepy; pygame.draw.rect(scn, bushfood_colour, (xx, yy, 10, 10))
     img = font.render('Bush Food', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
-    yy += stepy; pygame.draw.rect(scn, hazard_color, (xx, yy, 10, 10))
+    yy += stepy;
+    pygame.draw.line(scn, hazard_color, [xx, yy], [xx+10, yy])
+    pygame.draw.line(scn, hazard_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard_color, [xx+10, yy+10], [xx, yy+10])
+    pygame.draw.line(scn, hazard_color, [xx, yy+10], [xx, yy])
     img = font.render('Hazard', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
-
-# Draws the stats of the fittest creature
+############################################################################################################
+# Procedure to draw the stats of the fittest creature
+############################################################################################################
 def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
     stepy = key_step
     xx = w-(bdr-20)
@@ -225,5 +229,24 @@ def update_graph(pygame, scn, w, h, bdr, bdb, total_gens, gens_left, attr, attr_
     pygame.display.flip()
 # Return the last plot point
     return (x_plot, y_plot-2)
-
-
+############################################################################################################
+# Procedure to draw the food
+############################################################################################################
+def draw_hazard(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
+    stepx = (w-bdr-bdl)/xw
+    stepy = (h-bdt-bdb)/yw
+# Go through all the tiles
+    for i in range(xw):
+        for j in range(yw):
+        # See if the tile has a hazard
+            if tiles[i,j].hazard_type < 1:
+                pass
+            else:
+            # Draw a border around the hazard square
+                xy = (i,j)
+                x = bdl + (xy[0] * stepx)
+                y = bdt + (xy[1] * stepy)
+                pygame.draw.line(scn, hazard_color, [x, y], [x+stepx, y])
+                pygame.draw.line(scn, hazard_color, [x+stepx, y], [x+stepx, y+stepy])
+                pygame.draw.line(scn, hazard_color, [x+stepx, y+stepy], [x, y+stepy])
+                pygame.draw.line(scn, hazard_color, [x, y+stepy], [x, y])
