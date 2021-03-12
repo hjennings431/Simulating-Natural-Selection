@@ -13,7 +13,7 @@ class Creature:
         self.strength = strength                    # a float to indicate a creatures strength
         self.fitness = fitness                      # a float to show how fit a specific instance of a creature is (intially set to 0), this is the amount of food they find in a generation.
         self.position = position                    # references a coord position, this is where the creature is currently positioned.
-        self.can_move = True
+        self.can_move = True                        # bool that tells the movement function whether it can move
 
     #function to get position
     def return_position(self): # returns a creatures current position
@@ -59,6 +59,8 @@ class Creature:
         self.strength = new_str
     # function to update fitness
     def update_fitness(self, new_fit):
+        if new_fit < 0:
+            new_fit = 0
         self.fitness = new_fit
     def update_remaining_moves(self, new_moves):
         self.remaining_moves = new_moves
@@ -189,13 +191,13 @@ class Creature:
         type_of_current_tile = L_food[x_coord, y_coord].food_type
         neck_val = self.return_neck_type()
         if type_of_current_tile == 1:
-            if neck_val <= 0.6:
+            if neck_val < 0.45:
                 return(True)
         if type_of_current_tile == 2:
             if neck_val >= 0.7:
                 return(True)
         if type_of_current_tile == 3:
-            if 0.4 <= neck_val < 0.9 :
+            if 0.5 <= neck_val < 0.7:
                 return(True)
         else:
             return(False)
@@ -209,7 +211,7 @@ class Creature:
 class Food:
     def __init__(self, id, food_type):
         self.id = id # xy coords for the tile the food will be located on
-        self.food_type = food_type # 0= no food 1= food on land 2= food in a tall tree 3= food in a hole
+        self.food_type = food_type # 0= no food 1= food on land 2= food in a tall tree 3= food in bush
     #function to get food type
     def return_food_type(self):
         return(self.food_type)
@@ -733,3 +735,51 @@ def get_average_vision(Population):
         avg += Population[i].return_eagle_eye()
     avg /= len(Population)
     return(avg)
+############################################################################################################
+# Fight Club
+############################################################################################################
+def fight_club(Population):
+# Go through the list of creatures
+    for i in range(len(Population)-1):
+    # Get the position
+        first_creature_pos = Population[i].position
+    # Clear the fight card and append with current creature position
+        fight_card=[]
+        fight_card.append(i)
+    # Go through the remaining population and add to fight if creature on same square
+        for j in range(i+1, len(Population)):
+            if (first_creature_pos[0] == Population[j].position[0] and first_creature_pos[1] == Population[j].position[1]):
+                fight_card.append(j)
+    # Resolve the fight card
+        if (len(fight_card)>1):
+            Population = creature_fight(Population, fight_card)
+            for k in range(len(fight_card)):
+                print(fight_card[k], " : ", Population[fight_card[k]].position[0], Population[fight_card[k]].position[1])
+    return(Population)
+#######################################################################################
+
+def creature_fight(Population, fight_card):
+    creature1_str = round((Population[fight_card[0]].return_str()*100))
+    creature2_str = round((Population[fight_card[1]].return_str()*100))
+    total = creature1_str + creature2_str
+    roll = random.randint(1, total)
+    # c1 winner
+    print("pre", Population[fight_card[0]].return_fitness())
+    if roll <= creature1_str:
+        # winner +1 fit -2 moves
+        Population[fight_card[0]].update_fitness((Population[fight_card[0]].return_fitness() + 1))
+        Population[fight_card[0]].update_remaining_moves((Population[fight_card[0]].return_remaining_moves() -2))
+        #loser -1 fit - 1 move
+        Population[fight_card[1]].update_fitness((Population[fight_card[1]].return_fitness() - 1))
+        Population[fight_card[1]].update_remaining_moves((Population[fight_card[1]].return_remaining_moves() -1))
+    #c2 winner
+    else:
+        # winner +1 fit -2 moves
+        Population[fight_card[1]].update_fitness((Population[fight_card[0]].return_fitness() + 1))
+        Population[fight_card[1]].update_remaining_moves((Population[fight_card[0]].return_remaining_moves() -2))
+        #loser -1 fit - 1 move
+        Population[fight_card[0]].update_fitness((Population[fight_card[1]].return_fitness() - 1))
+        Population[fight_card[0]].update_remaining_moves((Population[fight_card[1]].return_remaining_moves() -1))
+    print("post", Population[fight_card[0]].return_fitness())
+
+    return(Population)
