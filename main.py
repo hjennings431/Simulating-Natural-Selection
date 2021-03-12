@@ -162,6 +162,8 @@ while running:
                 Population[i].update_position(XWorld, YWorld, WldStop, L_food, L_hazards)
 
             count -=1
+        # find any instances where a creature fight will occur and resolve them
+        Population = fight_club(Population)
         # check the turns per gen hasn't reached 0 or sliders have been updated
         if count < 0:
             # Get the latest values from the sliders
@@ -185,10 +187,14 @@ while running:
             gens_left -= 1
             if (gens_left <= 0):
                 run_sim = False
+            # reset graph pop
             graph_pop = []
+            # sort pop on fitness
             Population.sort(key=attrgetter('fitness'), reverse=True)
+            # append the top 10% to graph pop
             for i in range(round((len(Population)/10))):
                 graph_pop.append(Population[i])
+            # draw the new graph points
             attr1 = get_average_neck(graph_pop)
             last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom,(Generations/10), graph_points, attr1, attr1_color, last_plot1)
             attr2 = get_average_str(graph_pop)
@@ -200,7 +206,7 @@ while running:
             attr5 = get_average_speed(graph_pop)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
             graph_points -= 1
-            Population = fight_club(Population)
+        # reset the graph if the graph has reached the edge
         if graph_points <= 0:
             if gens_left <= 0:
                 last_plot1 = (-1, -1); last_plot2 = (-1, -1); last_plot3 = (-1, -1); last_plot4 = (-1, -1); last_plot5 = (-1, -1)
