@@ -76,12 +76,12 @@ pygame.display.set_icon(game_icon)
 pygame.display.set_caption("Natural Selection Simulator")
 # NoOfBobs Slider
 NoOfBobs_WhereY = 10
-NoOfBobs_slide = Slider(Screen, 10, NoOfBobs_WhereY+30, 190, 3, handleRadius=5, min=2, max=1000, step=10, initial=NoOfBobs, handleColour=(slider_handle_color), colour=(slider_color))
+NoOfBobs_slide = Slider(Screen, 10, NoOfBobs_WhereY+30, 190, 3, handleRadius=5, min=10, max=1000, step=10, initial=NoOfBobs, handleColour=(slider_handle_color), colour=(slider_color))
 NoOfBobs_label = TextBox(Screen, 10, NoOfBobs_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 NoOfBobs_value = TextBox(Screen, 150, NoOfBobs_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Turns Per Generation Slider
 TurnsPerGen_WhereY = 60
-TurnsPerGen_slide = Slider(Screen, 10, TurnsPerGen_WhereY+30, 190, 3, handleRadius=5, min=1, max=260, step=10, initial=TurnsPerGen, handleColour=(slider_handle_color), colour=(slider_color))
+TurnsPerGen_slide = Slider(Screen, 10, TurnsPerGen_WhereY+30, 190, 3, handleRadius=5, min=5, max=260, step=10, initial=TurnsPerGen, handleColour=(slider_handle_color), colour=(slider_color))
 TurnsPerGen_label = TextBox(Screen, 10, TurnsPerGen_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 TurnsPerGen_value = TextBox(Screen, 150, TurnsPerGen_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Display Speed
@@ -91,7 +91,7 @@ DisplaySpeed_label = TextBox(Screen, 10, DisplaySpeed_WhereY, 100, 24, fontSize=
 DisplaySpeed_value = TextBox(Screen, 150, DisplaySpeed_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Total Food Slider
 FoodPct_WhereY = 200
-FoodPct_slide = Slider(Screen, 10, FoodPct_WhereY+30, 190, 3, handleRadius=5, min=1, max=100, step=1, initial=FoodPct,  handleColour=(slider_handle_color), colour=(slider_color))
+FoodPct_slide = Slider(Screen, 10, FoodPct_WhereY+30, 190, 3, handleRadius=5, min=5, max=100, step=1, initial=FoodPct,  handleColour=(slider_handle_color), colour=(slider_color))
 FoodPct_label = TextBox(Screen, 10, FoodPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 FoodPct_value = TextBox(Screen, 150, FoodPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Tall Food Slider
@@ -160,6 +160,7 @@ while running:
         for j in range(MovesPerTurn):
             for i in range(len(Population)):
                 Population[i].update_position(XWorld, YWorld, WldStop, L_food, L_hazards)
+
             count -=1
         # check the turns per gen hasn't reached 0 or sliders have been updated
         if count < 0:
@@ -184,22 +185,29 @@ while running:
             gens_left -= 1
             if (gens_left <= 0):
                 run_sim = False
-            attr1 = get_average_neck(Population)
+            graph_pop = []
+            Population.sort(key=attrgetter('fitness'), reverse=True)
+            for i in range(round((len(Population)/10))):
+                graph_pop.append(Population[i])
+            attr1 = get_average_neck(graph_pop)
             last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom,(Generations/10), graph_points, attr1, attr1_color, last_plot1)
-            attr2 = get_average_str(Population)
+            attr2 = get_average_str(graph_pop)
             #last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr2, attr2_color, last_plot2)
-            attr3 = get_average_vision(Population)
+            attr3 = get_average_vision(graph_pop)
             #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
-            attr4 = get_average_stam(Population)
+            attr4 = get_average_stam(graph_pop)
             last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr4, attr4_color, last_plot4)
-            attr5 = get_average_speed(Population)
+            attr5 = get_average_speed(graph_pop)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
             graph_points -= 1
-
+            Population = fight_club(Population)
         if graph_points <= 0:
-            last_plot1 = (-1, -1); last_plot2 = (-1, -1); last_plot3 = (-1, -1); last_plot4 = (-1, -1); last_plot5 = (-1, -1)
-            draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
-            graph_points = Generations / 10
+            if gens_left <= 0:
+                last_plot1 = (-1, -1); last_plot2 = (-1, -1); last_plot3 = (-1, -1); last_plot4 = (-1, -1); last_plot5 = (-1, -1)
+            else:
+                last_plot1 = (-1, -1); last_plot2 = (-1, -1); last_plot3 = (-1, -1); last_plot4 = (-1, -1); last_plot5 = (-1, -1)
+                draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
+                graph_points = Generations / 10
 
         # update the screen to match the new state of the world
         draw_grid(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom, DrawGrid)
