@@ -11,7 +11,7 @@ class Creature:
         self.max_stamina = max_stamina              # a float that determines a creatures stamina (How many tiles can be moved before the creature can no longer move)
         self.remaining_moves = remaining_moves      # a float that indicates how much stamina a creature has left
         self.strength = strength                    # a float to indicate a creatures strength
-        self.fitness = fitness                      # a float to show how fit a specific instance of a creature is (intially set to 0), this is the amount of food they find in a generation.
+        self.fitness = fitness                      # an int to show how fit a specific instance of a creature is (intially set to 0), this is the amount of food they find in a generation.
         self.position = position                    # references a coord position, this is where the creature is currently positioned.
         self.can_move = True                        # bool that tells the movement function whether it can move
 
@@ -736,7 +736,7 @@ def get_average_vision(Population):
     avg /= len(Population)
     return(avg)
 ############################################################################################################
-# Fight Club
+# Fight Club; finds all the fights when given a pop
 ############################################################################################################
 def fight_club(Population):
 # Go through the list of creatures
@@ -753,33 +753,38 @@ def fight_club(Population):
     # Resolve the fight card
         if (len(fight_card)>1):
             Population = creature_fight(Population, fight_card)
-            for k in range(len(fight_card)):
-                print(fight_card[k], " : ", Population[fight_card[k]].position[0], Population[fight_card[k]].position[1])
+
     return(Population)
 #######################################################################################
 
 def creature_fight(Population, fight_card):
+    # get all the values for the fighting creatures
     creature1_str = round((Population[fight_card[0]].return_str()*100))
     creature2_str = round((Population[fight_card[1]].return_str()*100))
+    c1_fit = Population[fight_card[0]].return_fitness()
+    c2_fit = Population[fight_card[1]].return_fitness()
+    c1_moves = Population[fight_card[0]].return_remaining_moves()
+    c2_moves = Population[fight_card[1]].return_remaining_moves()
+    # get the total roll and roll for a probability that determines the winner
     total = creature1_str + creature2_str
     roll = random.randint(1, total)
     # c1 winner
-    print("pre", Population[fight_card[0]].return_fitness())
     if roll <= creature1_str:
         # winner +1 fit -2 moves
-        Population[fight_card[0]].update_fitness((Population[fight_card[0]].return_fitness() + 1))
-        Population[fight_card[0]].update_remaining_moves((Population[fight_card[0]].return_remaining_moves() -2))
+        c1_fit += 1; c1_moves -= 2; c2_fit -= 1; c2_moves -= 1
+        Population[fight_card[0]].update_fitness(c1_fit)
+        Population[fight_card[0]].update_remaining_moves(c1_moves)
         #loser -1 fit - 1 move
-        Population[fight_card[1]].update_fitness((Population[fight_card[1]].return_fitness() - 1))
-        Population[fight_card[1]].update_remaining_moves((Population[fight_card[1]].return_remaining_moves() -1))
+        Population[fight_card[1]].update_fitness(c2_fit)
+        Population[fight_card[1]].update_remaining_moves(c2_moves)
     #c2 winner
     else:
+        c2_fit += 1; c2_moves -= 2; c1_fit -= 1; c1_moves -= 1
         # winner +1 fit -2 moves
-        Population[fight_card[1]].update_fitness((Population[fight_card[0]].return_fitness() + 1))
-        Population[fight_card[1]].update_remaining_moves((Population[fight_card[0]].return_remaining_moves() -2))
+        Population[fight_card[1]].update_fitness(c2_fit)
+        Population[fight_card[1]].update_remaining_moves(c2_moves)
         #loser -1 fit - 1 move
-        Population[fight_card[0]].update_fitness((Population[fight_card[1]].return_fitness() - 1))
-        Population[fight_card[0]].update_remaining_moves((Population[fight_card[1]].return_remaining_moves() -1))
-    print("post", Population[fight_card[0]].return_fitness())
+        Population[fight_card[0]].update_fitness(c1_fit)
+        Population[fight_card[0]].update_remaining_moves(c1_moves)
 
     return(Population)
