@@ -1,5 +1,6 @@
 import pygame
 import pygame.freetype
+from pygame.locals import *
 import random
 import numpy as np
 from Display import *
@@ -109,7 +110,15 @@ HazardPct_WhereY = 350
 HazardPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
 HazardPct_label = TextBox(Screen, 10, HazardPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 HazardPct_value = TextBox(Screen, 150, HazardPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
-
+# *********************************************************************************************************************
+# Hazard Type check boxes
+HazardA = checkbox(pygame, (255,255,255), 10, 400, 15, 15, check=True, text="Thorns")
+HazardB = checkbox(pygame, (255,255,255), 110, 400, 15, 15, check=True, text="Tar Pits")
+HazardC = checkbox(pygame, (255,255,255), 10, 420, 15, 15, check=True, text="Gas")
+HazardD = checkbox(pygame, (255,255,255), 110, 420, 15, 15, check=True, text="Predators")
+HazardE = checkbox(pygame, (255,255,255), 10, 440, 15, 15, check=True, text="Tree Predators")
+hazard_toggles = []
+hazard_toggles.append(HazardA); hazard_toggles.append(HazardB); hazard_toggles.append(HazardC); hazard_toggles.append(HazardD); hazard_toggles.append(HazardE)
 draw_key(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom)
 
 # Set to -1 to restart graph plot
@@ -148,7 +157,7 @@ Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, Turn
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
 reset_hazards(all_coord_combos, L_hazards)
-generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards)
+generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards, hazard_toggles)
 
 # Just keep running until some event(s)
 count = TurnsPerGen
@@ -160,7 +169,6 @@ while running:
         for j in range(MovesPerTurn):
             for i in range(len(Population)):
                 Population[i].update_position(XWorld, YWorld, WldStop, L_food, L_hazards)
-
             count -=1
         # find any instances where a creature fight will occur and resolve them
         Population = fight_club(Population)
@@ -173,6 +181,14 @@ while running:
             TallFoodPct = TallFoodPct_slide.getValue()
             BushFoodPct = BushFoodPct_slide.getValue()
             HazardPct = HazardPct_slide.getValue()
+
+            # Get the Hazard checkboxes
+            hazard_mix = 0
+            if (HazardA.isChecked()): hazard_mix += 1
+            if (HazardB.isChecked()): hazard_mix += 2
+            if (HazardC.isChecked()): hazard_mix += 4
+            if (HazardD.isChecked()): hazard_mix += 8
+            if (HazardE.isChecked()): hazard_mix += 16
             # delete the old pop and create the new one
             Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen)
             for i in range(len(Population)):
@@ -182,7 +198,7 @@ while running:
             generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
         # Reset the Hazards
             reset_hazards(all_coord_combos, L_hazards)
-            generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards)
+            generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards, hazard_toggles)
             count = TurnsPerGen
             gens_left -= 1
             if (gens_left <= 0):
@@ -267,6 +283,17 @@ while running:
             HazardPct_value.setText(HazardPct_slide.getValue()); HazardPct_value.draw()
             HazardPct_label.setText("Hazard %"); HazardPct_label.draw()
 
+        # Handle the Hazard checkboxes
+            pygame.draw.rect(Screen, background_color, (10, 400, BdrLeft-10, 60) )
+            HazardA.draw(pygame, Screen); HazardB.draw(pygame, Screen)
+            HazardC.draw(pygame, Screen); HazardD.draw(pygame, Screen)
+            HazardE.draw(pygame, Screen)
+            if event.type == MOUSEBUTTONDOWN:
+                if (HazardA.isOver(event.pos)): HazardA.convert()
+                if (HazardB.isOver(event.pos)): HazardB.convert()
+                if (HazardC.isOver(event.pos)): HazardC.convert()
+                if (HazardD.isOver(event.pos)): HazardD.convert()
+                if (HazardE.isOver(event.pos)): HazardE.convert()
     # Handle the Start Button
         StartButton.listen(event); StartButton.draw()
     # Handle the Stop Button
