@@ -1,5 +1,5 @@
 creature_colour = (0, 255, 255)                 # Creature Colour
-multiple_creature_colour = (255,255,255)    # Multiple occupancy tile colour
+multiple_creature_colour = (0,0,255)    # Multiple occupancy tile colour
 no_food_colour = (0,0,0)                    # Blank tile colour
 food_colour = (51,204,51)                    # Normal food tile colour
 tallfood_colour = (20,82,20)                 # Tall food tile colour
@@ -250,3 +250,47 @@ def draw_hazard(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 pygame.draw.line(scn, hazard_color, [x+stepx, y], [x+stepx, y+stepy])
                 pygame.draw.line(scn, hazard_color, [x+stepx, y+stepy], [x, y+stepy])
                 pygame.draw.line(scn, hazard_color, [x, y+stepy], [x, y])
+
+############################################################################################################
+# Simple CheckBox class
+############################################################################################################
+class checkbox():
+    def __init__(self, pygame, color, x, y, width, height, outline=1, check=False, text="", size=24, font=None, textGap=2):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.outline = outline
+        self.color = color
+        self.check = check
+        self.text = text
+        self.font = pygame.font.SysFont(font, size)
+        self.size = size
+        self.textGap = textGap
+
+    # Draws the checkbox
+    def draw(self, pygame, win):
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height), self.outline)
+
+        if self.text != "":
+            text = self.font.render(self.text, 1, self.color)
+            win.blit(text,
+                     (self.x + self.width + self.textGap, self.y + (self.height / 2 - text.get_height() / 2)))
+
+        if self.check:
+            pygame.draw.line(win, self.color, (self.x, self.y),
+                             (self.x + self.width - self.outline, self.y + self.height - self.outline))
+            pygame.draw.line(win, self.color, (self.x - self.outline + self.width, self.y),
+                             (self.x, self.y + self.height - self.outline))
+
+    # Returns true if the given pos (either tuple or list) is over the box
+    def isOver(self, pos):
+        return pos[0] > self.x and pos[0] < self.x + self.width and pos[1] > self.y and pos[1] < self.y + self.height
+
+    # Returns wether the box is checked or not
+    def isChecked(self):
+        return self.check
+
+    # Checks or unchecks the box
+    def convert(self):
+        self.check = not self.check
