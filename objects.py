@@ -1,5 +1,6 @@
 import random
 from operator import attrgetter
+import Display
 ############################################################################################################
 # Common base class for all creatures.
 ############################################################################################################
@@ -151,9 +152,13 @@ class Creature:
         hazard_type = L_hazards[x_coord, y_coord].hazard_type
         if hazard_type == 0:
             pass
-        if hazard_type == 1: # Predators in trees, affects long neck creatures only
-            if self.long_neck >= 0.7:
-                self.fitness -=1
+        if hazard_type == 1: # Thorns
+            if self.speed <= 0.6:
+                self.fitness -= 1
+            if self.speed > 0.9:
+                self.fitness -= 3
+            else:
+                self.fitness -= 2
         if hazard_type == 2: # Tar pits that affect creatures with higher stamina more
             if self.max_stamina <=0.6:
                 self.fitness -= 1
@@ -163,21 +168,14 @@ class Creature:
             else:
                 self.fitness -= 2
                 self.remaining_moves -= 1
-        if hazard_type == 3: # Thorns that affect creatures with higher speed more
-            if self.speed <= 0.6:
-                self.fitness -= 1
-            if self.speed > 0.9:
-                self.fitness -= 3
-            else:
-                self.fitness -= 2
-        if hazard_type == 4: # toxic gases that affect creatures with higher vision more
+        if hazard_type == 3: # Gas
             if self.eagle_eye <= 0.6:
                 self.fitness -= 1
             if self.eagle_eye > 0.9:
                 self.fitness -= 3
             else:
                 self.fitness -= 2
-        if hazard_type == 5: # Predators on the land that affect creatures with higher strength more
+        if hazard_type == 4: # Land Predators
             if self.strength <= 0.6:
                 self.fitness -= 1
             if self.strength > 0.9:
@@ -186,6 +184,10 @@ class Creature:
                 self.fitness -= 2
         if self.fitness < 0:
             self.fitness = 0
+        if hazard_type == 5: # Tree predators
+            if self.long_neck >= 0.7:
+                self.fitness -=1
+
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
     def can_eat_tile(self, L_food, x_coord, y_coord):
         type_of_current_tile = L_food[x_coord, y_coord].food_type
@@ -263,19 +265,36 @@ class Hazards:
     def update_hazard(self, new_hazard_type):
         self.hazard_type = new_hazard_type
 ############################################################################################################
-# Function to generate a hazard set
+# Function to generate the set of hazards
 ############################################################################################################
-def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards):
+def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards, hazard_toggles):
+    ################### Thorns, Tar Pit, Gas, Predators, Tree predators ####################################
+    potential_hazards = [False, False, False, False, False]
+    hazard_index = []
+    num_of_toggles = 0
+    hazard_type = 0
+    for i in range(5):
+        if hazard_toggles[i].isChecked() == True:
+            potential_hazards[i] == True
+            num_of_toggles += 1
+            hazard_index.append(i)
 # For all tiles
     for i in range(len(all_coord_combos)):
         has_hazard = random.randint(1,100)
     # Decide if the tile has a hazard and what type it is
-        hazard_type = 0
-        if (has_hazard <= hazard_pct):
-                hazard_type = random.randint(1, hazard_types)
+        if num_of_toggles == 0:
+            pass
+        else:
+            hazard_type = 0
+            if (has_hazard <= hazard_pct):
+                hazard_type_temp = random.randint(0, (num_of_toggles-1))
+                hazard_type = hazard_index[hazard_type_temp]
+                hazard_type += 1
     # Update the food
         p_holder = all_coord_combos[i]
         L_hazards[p_holder[0], p_holder[1]].update_hazard(hazard_type)
+        if hazard_type != 0:
+            print("hazard_type", hazard_type)
 ############################################################################################################
 # Function to reset all hazards
 ############################################################################################################
@@ -483,10 +502,10 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen):
                     c2_speed = round((c2_speed / 100), 2)
                 if c1_stam >= 0.7:
                     if c1_speed >= 0.6:
-                        c1_speed = ((c1_speed*100)-10) / 100
+                        c1_speed = round(((c1_speed*100)-10) / 100)
                 if c2_stam >= 0.7:
                     if c2_speed >= 0.6:
-                        c2_speed = ((c2_speed*100)-10) / 100
+                        c2_speed = round(((c2_speed*100)-10) / 100)
 
             # strength
             if i == 4:
@@ -628,31 +647,31 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
             neck_roll = random.randint(1,100)
             if neck_roll <=40:
                 neck_val = random.randint(1,3) / 10
-            if neck_roll >= 97:
-                neck_val = random.randint(8,10) / 10
+            if neck_roll >= 95:
+                neck_val = random.randint(7,10) / 10
             else:
-                neck_val = random.randint(4,7) / 10
+                neck_val = random.randint(4,6) / 10
 
             #sight
             sight_roll = random.randint(1, 100)
             if sight_roll <= 40:
                 sight_val = random.randint(1, 3) / 10
-            if sight_roll >= 97:
-                sight_val = random.randint(8, 10) / 10
+            if sight_roll >= 95:
+                sight_val = random.randint(7, 10) / 10
             else:
-                sight_val = random.randint(4, 7) / 10
+                sight_val = random.randint(4, 6) / 10
 
             #stam
             stam_roll = random.randint(1,100)
             if stam_roll <=40:
                 stam_val = random.randint(1,3) / 10
-            if stam_roll >= 97:
-                stam_val = random.randint(8,10) / 10
+            if stam_roll >= 95:
+                stam_val = random.randint(7,10) / 10
             else:
-                stam_val = random.randint(4,7) / 10
+                stam_val = random.randint(4,6) / 10
 
             if stam_val >= 0.7:
-                max_speed_roll = 60
+                max_speed_roll = 65
             else:
                 max_speed_roll = 100
 
@@ -660,19 +679,19 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
             speed_roll = random.randint(1,max_speed_roll)
             if speed_roll <=40:
                 speed_val = random.randint(1,3) / 10
-            if speed_roll >= 97:
-                speed_val = random.randint(8,10) / 10
+            if speed_roll >= 95:
+                speed_val = random.randint(7,10) / 10
             else:
-                speed_val = random.randint(4,7) / 10
+                speed_val = random.randint(4,6) / 10
 
             #str
             str_roll = random.randint(1,100)
             if str_roll <=40:
                 str_val = random.randint(1,3) / 10
-            if str_roll >= 97:
-                str_val = random.randint(8,10) / 10
+            if str_roll >= 95:
+                str_val = random.randint(7,10) / 10
             else:
-                str_val = random.randint(4,7) / 10
+                str_val = random.randint(4,6) / 10
 
             shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1),random.randint(0, YW - 1)), True))
     if reset == True:
