@@ -1,9 +1,9 @@
-creature_colour = (0, 255, 255)                 # Creature Colour
-multiple_creature_colour = (0,0,255)    # Multiple occupancy tile colour
+creature_colour = (0, 255, 255)             # Creature Colour
+multiple_creature_colour = (255,200,0)      # Multiple occupancy tile colour
 no_food_colour = (0,0,0)                    # Blank tile colour
-food_colour = (51,204,51)                    # Normal food tile colour
-tallfood_colour = (20,82,20)                 # Tall food tile colour
-bushfood_colour = (112,219,112)              # Bush food tile colour
+food_colour = (51,204,51)                   # Normal food tile colour
+tallfood_colour = (20,82,20)                # Tall food tile colour
+bushfood_colour = (112,219,112)             # Bush food tile colour
 hazard_color = (255,0,0)                    # Hazard colour
 background_color = (0,0,0)                  # Define the background color
 grid_color = (50,50,50)                     # Define the grid line color
@@ -151,18 +151,44 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
 # Procedure to draw the stats of the fittest creature
 ############################################################################################################
 def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
-    stepy = key_step
-    xx = w-(bdr-20)
-    yy = round((bdt + (stepy / 2)) + 200)
-    pygame.draw.rect(scn, background_color, (xx, yy, (xx+100), (yy+100)))
+    xx = w-(bdr-15)
+    yy = bdt + 450
+# Clear the existing
+    pygame.draw.rect(scn, background_color, (xx, yy, bdr+20, 150))
+# draw
+    pygame.draw.line(scn, key_label_color, [xx-5, yy-5], [w-10, yy-5])
+    pygame.draw.line(scn, key_label_color, [w-10, yy-5], [w-10, yy+150])
+    pygame.draw.line(scn, key_label_color, [w-10, yy+150], [xx-5, yy+150])
+    pygame.draw.line(scn, key_label_color, [xx-5, yy+150], [xx-5, yy-5])
+    pygame.draw.rect(scn, key_label_color, (xx-5, yy-5, bdr-20, 30))
+
+
+    font = pygame.font.SysFont(None, 32)
+    img = font.render('Fittest Creature', True, (0,0,0)); scn.blit(img, (xx, yy)); yy+=30
     font = pygame.font.SysFont(None, 24)
-    img = font.render('Fittest Creature:', True, key_label_color); scn.blit(img, (xx, yy)); yy+=20
-    img = font.render('Neck: {0}'.format(fittest.return_neck_type()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
-    img = font.render('Vision: {0}'.format(fittest.return_eagle_eye()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
-    img = font.render('Speed: {0}'.format(fittest.return_speed()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
-    img = font.render('Stamina: {0}'.format(fittest.return_max_stam()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
-    img = font.render('Strength: {0}'.format(fittest.return_str()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
-    img = font.render('Fitness: {0}'.format(fittest.return_fitness()), True, key_label_color); scn.blit(img, (xx, yy)); yy += 20
+    img = font.render('Neck', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(fittest.return_neck_type()), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
+    yy += 20
+    img = font.render('Vision', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(fittest.return_eagle_eye()), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
+    yy += 20
+    img = font.render('Speed', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(fittest.return_speed()), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
+    yy += 20
+    img = font.render('Stamina', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(fittest.return_max_stam()), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
+    yy += 20
+    img = font.render('Strength', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(fittest.return_str()), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
+    yy += 20
+    img = font.render('Fitness', True, key_label_color); scn.blit(img, (xx, yy));
+    img = font.render('{0:>8.2f}'.format(int(fittest.return_fitness())), True, key_label_color);
+    xx1=w-img.get_width()-20; scn.blit(img, (xx1, yy));
 ############################################################################################################
 # Procedure to draw graph axis
 ############################################################################################################
@@ -207,7 +233,6 @@ def draw_axis(pygame, scn, w, h, bdr, bdb):
     pygame.draw.rect(scn, attr5_color, (xx, yy, 10, 10))
     img = font.render(attr5_label, True, axis_label_color)
     scn.blit(img, (xx + 20, yy - 4))
-
 ############################################################################################################
 # Procedure to update the graph
 ############################################################################################################
@@ -287,7 +312,7 @@ class checkbox():
     def isOver(self, pos):
         return pos[0] > self.x and pos[0] < self.x + self.width and pos[1] > self.y and pos[1] < self.y + self.height
 
-    # Returns wether the box is checked or not
+    # Returns wHether the box is checked or not
     def isChecked(self):
         return self.check
 
