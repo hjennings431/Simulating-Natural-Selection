@@ -182,13 +182,6 @@ while running:
             BushFoodPct = BushFoodPct_slide.getValue()
             HazardPct = HazardPct_slide.getValue()
 
-            # Get the Hazard checkboxes
-            hazard_mix = 0
-            if (HazardA.isChecked()): hazard_mix += 1
-            if (HazardB.isChecked()): hazard_mix += 2
-            if (HazardC.isChecked()): hazard_mix += 4
-            if (HazardD.isChecked()): hazard_mix += 8
-            if (HazardE.isChecked()): hazard_mix += 16
             # delete the old pop and create the new one
             Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen)
             for i in range(len(Population)):
@@ -214,7 +207,9 @@ while running:
             attr1 = get_average_neck(graph_pop)
             last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom,(Generations/10), graph_points, attr1, attr1_color, last_plot1)
             attr2 = get_average_str(graph_pop)
-            #last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr2, attr2_color, last_plot2)
+            print("im strength", attr2)
+            last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr2, attr2_color, last_plot2)
+            print(last_plot2)
             attr3 = get_average_vision(graph_pop)
             #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(graph_pop)
