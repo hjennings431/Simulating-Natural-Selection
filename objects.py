@@ -548,7 +548,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
         if new_population[i].return_fitness() > 5:
             copy2.append(new_population[i])
     if len(copy2) < len(new_population):
-        copy2 = generate_creatures((len(new_population)-len(copy2)), XW, YW, copy2, False, TurnsPerGen, True)
+        copy2 = generate_creatures((len(new_population)-len(copy2)), XW, YW, copy2, False, TurnsPerGen, False)
         #amount_to_gen = len(new_population) - len(copy2)
         #copy2 = generate_creatures(amount_to_gen, XW, YW, copy2, False, TurnsPerGen, False)
         new_population = []
@@ -572,113 +572,59 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
 ############################################################################################################
 def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen, Juiced):
     shortlist = []
-    # More variance in creature values
-    if Juiced:
-        for i in range(num_of_creatures):
-            neck_roll = random.randint(1, 100)
-            if neck_roll <= 20:
-                neck_val = random.randint(1, 3) / 10
-            if neck_roll >= 70:
-                neck_val = random.randint(8, 10) / 10
-            else:
-                neck_val = random.randint(4, 7) / 10
+    for i in range(num_of_creatures): # standard creature weights
+        #### CREATURE INTIIAL STATS CAN BE WEIGHTED HERE ####
+        #neck
+        neck_roll = random.randint(1,100)
+        if neck_roll <=40:
+            neck_val = random.randint(1,3) / 10
+        if neck_roll >= 95:
+            neck_val = random.randint(7,10) / 10
+        else:
+            neck_val = random.randint(4,6) / 10
 
-            # sight
-            sight_roll = random.randint(1, 100)
-            if sight_roll <= 20:
-                sight_val = random.randint(1, 3) / 10
-            if sight_roll >= 70:
-                sight_val = random.randint(8, 10) / 10
-            else:
-                sight_val = random.randint(4, 7) / 10
+        #sight
+        sight_roll = random.randint(1, 100)
+        if sight_roll <= 40:
+            sight_val = random.randint(1, 3) / 10
+        if sight_roll >= 95:
+            sight_val = random.randint(7, 10) / 10
+        else:
+            sight_val = random.randint(4, 6) / 10
 
-            # stam
-            stam_roll = random.randint(1, 100)
-            if stam_roll <= 20:
-                stam_val = random.randint(1, 3) / 10
-            if stam_roll >= 70:
-                stam_val = random.randint(8, 10) / 10
-            else:
-                stam_val = random.randint(4, 7) / 10
+        #stam
+        stam_roll = random.randint(1,100)
+        if stam_roll <=40:
+            stam_val = random.randint(1,3) / 10
+        if stam_roll >= 95:
+            stam_val = random.randint(7,10) / 10
+        else:
+            stam_val = random.randint(4,6) / 10
 
-            if stam_val >= 0.7:
-                max_speed_roll = 60
-            else:
-                max_speed_roll = 100
+        if stam_val >= 0.7:
+            max_speed_roll = 65
+        else:
+            max_speed_roll = 100
 
-            # speed
-            speed_roll = random.randint(1, max_speed_roll)
-            if speed_roll <= 20:
-                speed_val = random.randint(1, 3) / 10
-            if speed_roll >= 70:
-                speed_val = random.randint(8, 10) / 10
-            else:
-                speed_val = random.randint(4, 7) / 10
+        # speed
+        speed_roll = random.randint(1,max_speed_roll)
+        if speed_roll <=40:
+            speed_val = random.randint(1,3) / 10
+        if speed_roll >= 95:
+            speed_val = random.randint(7,10) / 10
+        else:
+            speed_val = random.randint(4,6) / 10
 
-            # str
-            str_roll = random.randint(1, 100)
-            if str_roll <= 20:
-                str_val = random.randint(1, 3) / 10
-            if str_roll >= 70:
-                str_val = random.randint(8, 10) / 10
-            else:
-                str_val = random.randint(4, 7) / 10
+        #str
+        str_roll = random.randint(1,100)
+        if str_roll <=40:
+            str_val = random.randint(1,3) / 10
+        if str_roll >= 95:
+            str_val = random.randint(7,10) / 10
+        else:
+            str_val = random.randint(4,6) / 10
 
-            shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True))
-    else:
-        for i in range(num_of_creatures): # standard creature weights
-            #### CREATURE INTIIAL STATS CAN BE WEIGHTED HERE ####
-            #neck
-            neck_roll = random.randint(1,100)
-            if neck_roll <=40:
-                neck_val = random.randint(1,3) / 10
-            if neck_roll >= 95:
-                neck_val = random.randint(7,10) / 10
-            else:
-                neck_val = random.randint(4,6) / 10
-
-            #sight
-            sight_roll = random.randint(1, 100)
-            if sight_roll <= 40:
-                sight_val = random.randint(1, 3) / 10
-            if sight_roll >= 95:
-                sight_val = random.randint(7, 10) / 10
-            else:
-                sight_val = random.randint(4, 6) / 10
-
-            #stam
-            stam_roll = random.randint(1,100)
-            if stam_roll <=40:
-                stam_val = random.randint(1,3) / 10
-            if stam_roll >= 95:
-                stam_val = random.randint(7,10) / 10
-            else:
-                stam_val = random.randint(4,6) / 10
-
-            if stam_val >= 0.7:
-                max_speed_roll = 65
-            else:
-                max_speed_roll = 100
-
-            # speed
-            speed_roll = random.randint(1,max_speed_roll)
-            if speed_roll <=40:
-                speed_val = random.randint(1,3) / 10
-            if speed_roll >= 95:
-                speed_val = random.randint(7,10) / 10
-            else:
-                speed_val = random.randint(4,6) / 10
-
-            #str
-            str_roll = random.randint(1,100)
-            if str_roll <=40:
-                str_val = random.randint(1,3) / 10
-            if str_roll >= 95:
-                str_val = random.randint(7,10) / 10
-            else:
-                str_val = random.randint(4,6) / 10
-
-            shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1),random.randint(0, YW - 1)), True))
+        shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1),random.randint(0, YW - 1)), True))
     if reset == True:
         Population = []
     for i in range(len(shortlist)):
