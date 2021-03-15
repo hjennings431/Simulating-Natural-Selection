@@ -1,7 +1,7 @@
 import random
 from operator import attrgetter
 import Display
-from Main import stophit
+
 ############################################################################################################
 # Common base class for all creatures.
 ############################################################################################################
