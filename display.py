@@ -4,12 +4,16 @@ no_food_colour = (0,0,0)                    # Blank tile colour
 food_colour = (51,204,51)                   # Normal food tile colour
 tallfood_colour = (20,82,20)                # Tall food tile colour
 bushfood_colour = (112,219,112)             # Bush food tile colour
-hazard_color = (255,0,0)                    # Hazard colour
-background_color = (0,0,0)                  # Define the background color
+hazard1_color = (255,0,0)                   # Hazard colour
+hazard2_color = (255,50,0)                  # Hazard colour
+hazard3_color = (255,100,0)                 # Hazard colour
+hazard4_color = (255,150,0)                 # Hazard colour
+hazard5_color = (255,200,0)                 # Hazard colour
+background_color = (20,20,30)               # Define the background color
 grid_color = (50,50,50)                     # Define the grid line color
 border_color = (255,255,255)                # Define the line color
 key_label_color = (255,255,255)             # Color for the key labels
-key_step = 30                               # Step between keys and key labels
+key_step = 20                               # Step between keys and key labels
 slider_color = (255,255,255)                # Slider color
 slider_text_color = (255, 255, 255)         # Text color for slider
 slider_handle_color = (255, 128, 0)         # Slider handle color
@@ -142,12 +146,26 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     yy += stepy; pygame.draw.rect(scn, bushfood_colour, (xx, yy, 10, 10))
     img = font.render('Bush Food', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
     yy += stepy;
-    pygame.draw.line(scn, hazard_color, [xx, yy], [xx+10, yy])
-    pygame.draw.line(scn, hazard_color, [xx+10, yy], [xx+10, yy+10])
-    pygame.draw.line(scn, hazard_color, [xx+10, yy+10], [xx, yy+10])
-    pygame.draw.line(scn, hazard_color, [xx, yy+10], [xx, yy])
-    img = font.render('Hazard', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
-############################################################################################################
+    pygame.draw.line(scn, hazard1_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard1_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard1_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard1_color, [xx, yy+10], [xx, yy])
+    img = font.render('Thorns', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy;
+    pygame.draw.line(scn, hazard2_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard2_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard2_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard2_color, [xx, yy+10], [xx, yy])
+    img = font.render('Tar Pits', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy;
+    pygame.draw.line(scn, hazard3_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard3_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard3_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard3_color, [xx, yy+10], [xx, yy])
+    img = font.render('Gas', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy;
+    pygame.draw.line(scn, hazard4_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard4_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard4_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard4_color, [xx, yy+10], [xx, yy])
+    img = font.render('Predators', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy;
+    pygame.draw.line(scn, hazard5_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard5_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard5_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard5_color, [xx, yy+10], [xx, yy])
+    img = font.render('Tree Predators', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+###########################################################################################################
 # Procedure to draw the stats of the fittest creature
 ############################################################################################################
 def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
@@ -161,7 +179,6 @@ def draw_fittest(pygame,scn, xw, yw, w, h, bdl, bdr, bdt, bdb, fittest):
     pygame.draw.line(scn, key_label_color, [w-10, yy+150], [xx-5, yy+150])
     pygame.draw.line(scn, key_label_color, [xx-5, yy+150], [xx-5, yy-5])
     pygame.draw.rect(scn, key_label_color, (xx-5, yy-5, bdr-20, 30))
-
 
     font = pygame.font.SysFont(None, 32)
     img = font.render('Fittest Creature', True, (0,0,0)); scn.blit(img, (xx, yy)); yy+=30
@@ -268,6 +285,11 @@ def draw_hazard(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 pass
             else:
             # Draw a border around the hazard square
+                hazard_color = hazard1_color
+                if (tiles[i, j].hazard_type == 2): hazard_color = hazard2_color
+                if (tiles[i, j].hazard_type == 3): hazard_color = hazard3_color
+                if (tiles[i, j].hazard_type == 4): hazard_color = hazard4_color
+                if (tiles[i, j].hazard_type == 5): hazard_color = hazard5_color
                 xy = (i,j)
                 x = bdl + (xy[0] * stepx)
                 y = bdt + (xy[1] * stepy)
@@ -275,7 +297,6 @@ def draw_hazard(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 pygame.draw.line(scn, hazard_color, [x+stepx, y], [x+stepx, y+stepy])
                 pygame.draw.line(scn, hazard_color, [x+stepx, y+stepy], [x, y+stepy])
                 pygame.draw.line(scn, hazard_color, [x, y+stepy], [x, y])
-
 ############################################################################################################
 # Simple CheckBox class
 ############################################################################################################
