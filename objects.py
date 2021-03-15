@@ -1,6 +1,7 @@
 import random
 from operator import attrgetter
 import Display
+from Main import stophit
 ############################################################################################################
 # Common base class for all creatures.
 ############################################################################################################
@@ -153,37 +154,21 @@ class Creature:
         if hazard_type == 0:
             pass
         if hazard_type == 1: # Thorns
-            if self.speed <= 0.6:
+            if self.speed >= 0.7:
                 self.fitness -= 1
-            if self.speed > 0.9:
-                self.fitness -= 3
-            else:
-                self.fitness -= 2
+
         if hazard_type == 2: # Tar pits that affect creatures with higher stamina more
-            if self.max_stamina <=0.6:
+            if self.max_stamina >=0.7:
                 self.fitness -= 1
-            if self.max_stamina > 0.9:
-                self.fitness -= 3
-                self.remaining_moves -= 1
-            else:
-                self.fitness -= 2
-                self.remaining_moves -= 1
+
         if hazard_type == 3: # Gas
-            if self.eagle_eye <= 0.6:
+            if self.eagle_eye >=0.7:
                 self.fitness -= 1
-            if self.eagle_eye > 0.9:
-                self.fitness -= 3
-            else:
-                self.fitness -= 2
+
         if hazard_type == 4: # Land Predators
-            if self.strength <= 0.6:
+            if self.strength >=0.7:
                 self.fitness -= 1
-            if self.strength > 0.9:
-                self.fitness -= 3
-            else:
-                self.fitness -= 2
-        if self.fitness < 0:
-            self.fitness = 0
+
         if hazard_type == 5: # Tree predators
             if self.long_neck >= 0.7:
                 self.fitness -=1
