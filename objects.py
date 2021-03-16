@@ -41,7 +41,6 @@ class Creature:
     # returns remaining moves
     def return_remaining_moves(self):
         return(self.remaining_moves)
-
     # function to update neck
     def update_neck(self,new_neck):
         self.long_neck = new_neck
@@ -54,8 +53,8 @@ class Creature:
     # function to update stamina
     def update_stam(self,new_stam, TurnsPerGen):
         self.max_stamina = new_stam
-        multiplier = (TurnsPerGen*2) - round((TurnsPerGen * 0.1))
-        self.remaining_moves = int(new_stam* multiplier)
+        multiplier = (TurnsPerGen*2) - round((TurnsPerGen * 0.2))
+        self.remaining_moves = int(new_stam * multiplier)
     # function to update strength
     def update_str(self, new_str):
         self.strength = new_str
@@ -64,12 +63,12 @@ class Creature:
         if new_fit < 0:
             new_fit = 0
         self.fitness = new_fit
+    # updates the remaining moves
     def update_remaining_moves(self, new_moves):
         self.remaining_moves = new_moves
 
     # function to determine the best move and then make the move
     def update_position(self, XL, YL, Stop, L_food, L_hazards):
-
         global can_eat
         can_eat = False
     #     Moves   : 0   1   2   3   4   5   6   7
@@ -148,6 +147,7 @@ class Creature:
             if self.remaining_moves <= 0:
                 self.can_move = False
 
+
     # function to check current tile for hazards
     def check_hazard(self, L_hazards, x_coord, y_coord):
         hazard_type = L_hazards[x_coord, y_coord].hazard_type
@@ -178,7 +178,7 @@ class Creature:
         type_of_current_tile = L_food[x_coord, y_coord].food_type
         neck_val = self.return_neck_type()
         if type_of_current_tile == 1:
-            if neck_val < 0.45:
+            if neck_val < 0.5:
                 return(True)
         if type_of_current_tile == 2:
             if neck_val >= 0.7:
@@ -278,8 +278,6 @@ def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards, haz
     # Update the food
         p_holder = all_coord_combos[i]
         L_hazards[p_holder[0], p_holder[1]].update_hazard(hazard_type)
-        if hazard_type != 0:
-            print("hazard_type", hazard_type)
 ############################################################################################################
 # Function to reset all hazards
 ############################################################################################################
@@ -291,13 +289,19 @@ def reset_hazards(all_coord_combos, L_hazards):
 ############################################################################################################
 # Mutation function
 ############################################################################################################
-def mutation(genome, TurnsPerGen):
+def mutation(genome, TurnsPerGen, Mut_chance):
+    print("pre")
+    print("neck", genome.return_neck_type())
+    print("eye", genome.return_eagle_eye())
+    print("speed", genome.return_speed())
+    print("stam", genome.return_max_stam())
+    print("str", genome.return_str())
     for i in range(5):
         #roll a number to see if the stat will go up or down if rolled
         plus_minus = random.randint(0,1)
-        # mut chance at 1%
-        m_chance = random.randint(1,100)
-        if m_chance <= 1:
+        # roll mutation
+        m_roll = random.randint(1,100)
+        if m_roll <= Mut_chance:
             # 0 = change neck value
             if i == 0:
                 if plus_minus == 1:
@@ -377,11 +381,17 @@ def mutation(genome, TurnsPerGen):
                     new_val /= 100
                 genome.update_str(new_val)
     # return  the mutated 'genome'
+    print("post")
+    print("neck", genome.return_neck_type())
+    print("eye", genome.return_eagle_eye())
+    print("speed", genome.return_speed())
+    print("stam", genome.return_max_stam())
+    print("str", genome.return_str())
     return(genome)
 ############################################################################################################
 # CrossOver function
 ############################################################################################################
-def crossover(copy_new_population, XW, YW, TurnsPerGen):
+def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
     children = []
     for i in range(int(len(copy_new_population)/2)):
         r_range = len(copy_new_population) - 1
@@ -485,12 +495,12 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen):
                     c2_speed = random.randint(range_bot, range_top)
                     c1_speed = round((c1_speed / 100), 2)
                     c2_speed = round((c2_speed / 100), 2)
-                if c1_stam >= 0.7:
-                    if c1_speed >= 0.6:
-                        c1_speed = round(((c1_speed*100)-10) / 100)
-                if c2_stam >= 0.7:
-                    if c2_speed >= 0.6:
-                        c2_speed = round(((c2_speed*100)-10) / 100)
+                    if c1_stam >= 0.7:
+                        if c1_speed >= 0.6:
+                            c1_speed = round(((c1_speed*100)-15) / 100)
+                    if c2_stam >= 0.7:
+                        if c2_speed >= 0.6:
+                            c2_speed = round(((c2_speed*100)-15) / 100)
 
             # strength
             if i == 4:
@@ -514,8 +524,8 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen):
 
         c1 = Creature(c1_neck, c1_sight, c1_speed, c1_stam, c1_stam, c1_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True)
         c2 = Creature(c2_neck, c2_sight, c2_speed, c2_stam, c2_stam, c2_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True)
-        c1 = mutation(c1, TurnsPerGen)
-        c2 = mutation(c2, TurnsPerGen)
+        c1 = mutation(c1, TurnsPerGen, Mut_chance)
+        c2 = mutation(c2, TurnsPerGen, Mut_chance)
         c1.update_stam(c1.return_max_stam(), TurnsPerGen)
         c2.update_stam(c2.return_max_stam(), TurnsPerGen)
         children.append(c1)
@@ -526,7 +536,8 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen):
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
-def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
+def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
+    stop = False
     new_population = []
     copy = []
     copy2 = []
@@ -544,20 +555,18 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
     # passing the top 50% solutions down to the next generation (They survived)
     for i in range(cutoff):
         new_population.append(Population[i])
+        # mutate the parents if they have a low fitness to avoid stagnation
+    count = 0
     for i in range(len(new_population)):
-        if new_population[i].return_fitness() > 5:
-            copy2.append(new_population[i])
-    if len(copy2) < len(new_population):
-        copy2 = generate_creatures((len(new_population)-len(copy2)), XW, YW, copy2, False, TurnsPerGen, False)
-        #amount_to_gen = len(new_population) - len(copy2)
-        #copy2 = generate_creatures(amount_to_gen, XW, YW, copy2, False, TurnsPerGen, False)
-        new_population = []
-        for i in range(len(copy2)):
-            new_population.append(copy2[i])
+        if new_population[i].return_fitness() < 5:
+            count += 1
+            new_population[i] = mutation(new_population[i], TurnsPerGen, Mut_chance)
+    if count == len(new_population):
+        stop = True
     # performing crossover and mutation to get the last 50% of the population
     for i in range(len(new_population)):
         copy.append(new_population[i])
-    children = crossover(copy, XW, YW,TurnsPerGen)
+    children = crossover(copy, XW, YW,TurnsPerGen, Mut_chance)
     # convert genomes in children to creatures in new pop
     for i in range(len(children)):
         new_population.append(children[i])
@@ -566,7 +575,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen):
         new_population[i].update_stam(stam_val, TurnsPerGen)
     #replacing the old pop
     Population = new_population
-    return(Population, fittest)
+    return(Population, fittest, stop)
 ############################################################################################################
 # Function to generate a set of random creatures
 ############################################################################################################
