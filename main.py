@@ -7,6 +7,7 @@ from Display import *
 from Objects import *
 from pygame_widgets import *
 from operator import attrgetter
+from pymsgbox import *
 
 running = True
 run_sim = True
@@ -65,7 +66,7 @@ TallFoodPct = 10            # Percentage chance food tile being tall food
 BushFoodPct = 5             # Percentage chance food tile being bush food
 HazardPct = 5               # Hazard Percentage
 HazardTypes = 5             # Number of Hazard types
-
+Mut_chance = 3              # Mutation chance
 # Set up the screen and set the background color
 pygame.init()
 Screen = pygame.display.set_mode((Width, Height))
@@ -105,18 +106,24 @@ BushFoodPct_WhereY = 300
 BushFoodPct_slide = Slider(Screen, 10, BushFoodPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=BushFoodPct,  handleColour=(slider_handle_color), colour=(slider_color))
 BushFoodPct_label = TextBox(Screen, 10, BushFoodPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 BushFoodPct_value = TextBox(Screen, 150, BushFoodPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
-# Tall Food Slider
+# Hazard Slider
 HazardPct_WhereY = 350
 HazardPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
 HazardPct_label = TextBox(Screen, 10, HazardPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 HazardPct_value = TextBox(Screen, 150, HazardPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
+# Mutation slider
+MutationPct_WhereY = 400
+MutationPct_slide = Slider(Screen, 10, MutationPct_WhereY+30, 190, 3, handleRadius=5, min=1, max = 100, step = 1, initial=Mut_chance, handleColour=(slider_handle_color), colour=(slider_color))
+MutationPct_label = TextBox(Screen, 10, MutationPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
+MutationPct_value = TextBox(Screen, 150, MutationPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # *********************************************************************************************************************
+
 # Hazard Type check boxes
-HazardA = checkbox(pygame, (255,255,255), 10, 400, 15, 15, check=True, text="Thorns")
-HazardB = checkbox(pygame, (255,255,255), 110, 400, 15, 15, check=True, text="Tar Pits")
-HazardC = checkbox(pygame, (255,255,255), 10, 420, 15, 15, check=True, text="Gas")
-HazardD = checkbox(pygame, (255,255,255), 110, 420, 15, 15, check=True, text="Predators")
-HazardE = checkbox(pygame, (255,255,255), 10, 440, 15, 15, check=True, text="Tree Predators")
+HazardA = checkbox(pygame, (255,255,255), 10, 470, 15, 15, check=True, text="Thorns")
+HazardB = checkbox(pygame, (255,255,255), 110, 470, 15, 15, check=True, text="Tar Pits")
+HazardC = checkbox(pygame, (255,255,255), 10, 490, 15, 15, check=True, text="Gas")
+HazardD = checkbox(pygame, (255,255,255), 110, 490, 15, 15, check=True, text="Predators")
+HazardE = checkbox(pygame, (255,255,255), 10, 510, 15, 15, check=True, text="Tree Predators")
 hazard_toggles = []
 hazard_toggles.append(HazardA); hazard_toggles.append(HazardB); hazard_toggles.append(HazardC); hazard_toggles.append(HazardD); hazard_toggles.append(HazardE)
 draw_key(pygame, Screen, XWorld, YWorld, Width, Height, BdrLeft, BdrRight, BdrTop, BdrBottom)
@@ -163,6 +170,7 @@ generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards, hazard_tog
 count = TurnsPerGen
 gens_left = Generations
 graph_points = Generations/10
+stop_count = 0
 while running:
     if (run_sim and not pause_sim):
         Population.sort(key=attrgetter('speed'), reverse=True)
@@ -181,9 +189,15 @@ while running:
             TallFoodPct = TallFoodPct_slide.getValue()
             BushFoodPct = BushFoodPct_slide.getValue()
             HazardPct = HazardPct_slide.getValue()
+            Mut_chance = MutationPct_slide.getValue()
 
             # delete the old pop and create the new one
-            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen)
+            Population, fittest_creature, stop = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
+            if stop == True:
+                stop_count += 1
+                if stop_count >= 10:
+                    alert(text="Your creatures have died out. Press ok to continue", title=":(", button='Ok')
+                    stophit()
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
         # Reset the food
@@ -207,9 +221,7 @@ while running:
             attr1 = get_average_neck(graph_pop)
             last_plot1 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom,(Generations/10), graph_points, attr1, attr1_color, last_plot1)
             attr2 = get_average_str(graph_pop)
-            print("im strength", attr2)
             last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr2, attr2_color, last_plot2)
-            print(last_plot2)
             attr3 = get_average_vision(graph_pop)
             #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(graph_pop)
@@ -277,9 +289,13 @@ while running:
             HazardPct_slide.listen(event); HazardPct_slide.draw()
             HazardPct_value.setText(HazardPct_slide.getValue()); HazardPct_value.draw()
             HazardPct_label.setText("Hazard %"); HazardPct_label.draw()
-
+        # Handle the mutation % slider
+            pygame.draw.rect(Screen, background_color, (0, MutationPct_WhereY, BdrLeft, 45))
+            MutationPct_slide.listen(event); MutationPct_slide.draw()
+            MutationPct_value.setText(MutationPct_slide.getValue()); MutationPct_value.draw()
+            MutationPct_label.setText("Mutation %"); MutationPct_label.draw()
         # Handle the Hazard checkboxes
-            pygame.draw.rect(Screen, background_color, (10, 400, BdrLeft-10, 60) )
+            pygame.draw.rect(Screen, background_color, (10, 470, BdrLeft-10, 60) )
             HazardA.draw(pygame, Screen); HazardB.draw(pygame, Screen)
             HazardC.draw(pygame, Screen); HazardD.draw(pygame, Screen)
             HazardE.draw(pygame, Screen)
