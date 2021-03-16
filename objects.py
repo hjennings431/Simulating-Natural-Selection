@@ -69,6 +69,7 @@ class Creature:
 
     # function to determine the best move and then make the move
     def update_position(self, XL, YL, Stop, L_food, L_hazards):
+        potential_x = 0 ; potential_y = 0
         global can_eat
         can_eat = False
     #     Moves   : 0   1   2   3   4   5   6   7
@@ -99,42 +100,49 @@ class Creature:
                     can_eat = self.can_eat_tile(L_food, potential_x, potential_y)
                 if can_eat == True:
                     fpossible[i] = True
-
-            potential_moves = []
             # creating a list containing ints of all the valid moves
-            for i in range(0,7):
-                if fpossible[i] == True:
-                    potential_moves.append(i)
-            # if the list of moves that contain food is empty then a direction is randomly selected and ate food is set to false
-            if not potential_moves:
-                direction = random.randint(0,7)
-                ate_food_flag = False
-            else:
-                #randomly selecting a move from the list of potential moves
-                direction = random.choice(potential_moves)
-                ate_food_flag = True
+                is_food = L_food[potential_x, potential_y].food_type
+                if is_food != 0:
+                    can_eat = self.can_eat_tile(L_food, potential_x, potential_y)
+# *******************************************************************************************
+                if can_eat > 0:
+                    fpossible[i] = True
+
+        potential_moves = []
+        # creating a list containing ints of all the valid moves
+        for i in range(0, 7):
+            if fpossible[i] == True:
+                potential_moves.append(i)
+        # if the list of moves that contain food is empty then a direction is randomly selected and ate food is set to false
+        if not potential_moves:
+            direction = random.randint(0, 7)
+            ate_food_flag = False
+        else:
+            # randomly selecting a move from the list of potential moves
+            direction = random.choice(potential_moves)
+            ate_food_flag = True
 
         # Create new position
-            new_pos_x = self.position[0] + xpossible[direction]
-            new_pos_y = self.position[1] + ypossible[direction]
+        new_pos_x = self.position[0] + xpossible[direction]
+        new_pos_y = self.position[1] + ypossible[direction]
 
         # Stop at world edge
-            if (Stop):
-                if (new_pos_x < 0):     new_pos_x = 0
-                if (new_pos_x >= XL):   new_pos_x = XL-1
-                if (new_pos_y < 0):     new_pos_y = 0
-                if (new_pos_y >= YL):   new_pos_y = YL-1
+        if (Stop):
+            if (new_pos_x < 0):     new_pos_x = 0
+            if (new_pos_x >= XL):   new_pos_x = XL - 1
+            if (new_pos_y < 0):     new_pos_y = 0
+            if (new_pos_y >= YL):   new_pos_y = YL - 1
         # Else Wrap around world edges
-            else:
-                if (new_pos_x < 0):     new_pos_x = XL-1
-                if (new_pos_x >= XL):   new_pos_x = 0
-                if (new_pos_y < 0):     new_pos_y = YL-1
-                if (new_pos_y >= YL):   new_pos_y = 0
+        else:
+            if (new_pos_x < 0):     new_pos_x = XL - 1
+            if (new_pos_x >= XL):   new_pos_x = 0
+            if (new_pos_y < 0):     new_pos_y = YL - 1
+            if (new_pos_y >= YL):   new_pos_y = 0
         # Update Position
-            self.position = (new_pos_x, new_pos_y)
+        self.position = (new_pos_x, new_pos_y)
 
-            if ate_food_flag:
-                self.eat_food(L_food, new_pos_x, new_pos_y)
+        if ate_food_flag:
+            self.eat_food(L_food, new_pos_x, new_pos_y, can_eat)
         # Resolves hazards on new tile
             self.check_hazard(L_hazards, new_pos_x, new_pos_y)
             if self.speed <= 0.2:
@@ -169,28 +177,31 @@ class Creature:
             if self.strength >=0.7:
                 self.fitness -= 1
 
-        if hazard_type == 5: # Tree predators
+# *******************************************************************************************
+        if hazard_type == 5:  # Tree predators
             if self.long_neck >= 0.7:
-                self.fitness -=1
+                self.fitness -= ((self.long_neck - 0.7) / 0.3)
 
+# *******************************************************************************************
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
     def can_eat_tile(self, L_food, x_coord, y_coord):
         type_of_current_tile = L_food[x_coord, y_coord].food_type
         neck_val = self.return_neck_type()
         if type_of_current_tile == 1:
             if neck_val < 0.5:
-                return(True)
+                return (1 - (neck_val - 0.5) / 0.5)
         if type_of_current_tile == 2:
             if neck_val >= 0.7:
-                return(True)
+                return ((neck_val - 0.7) / 0.3)
         if type_of_current_tile == 3:
             if 0.5 <= neck_val < 0.7:
-                return(True)
-        else:
-            return(False)
+                return ((neck_val - 0.5) / 0.2)
+        return (0.0)
+
+    # *******************************************************************************************
     # function to eat the food at a tile passed to it and update the food array and creatures fitness
-    def eat_food(self, L_food, x_coord,y_coord):
-        self.fitness +=1
+    def eat_food(self, L_food, x_coord, y_coord, food_weight):
+        self.fitness += food_weight
         L_food[x_coord, y_coord].update_food_type(0)
 ############################################################################################################
 # Common class for the food
@@ -290,12 +301,6 @@ def reset_hazards(all_coord_combos, L_hazards):
 # Mutation function
 ############################################################################################################
 def mutation(genome, TurnsPerGen, Mut_chance):
-    print("pre")
-    print("neck", genome.return_neck_type())
-    print("eye", genome.return_eagle_eye())
-    print("speed", genome.return_speed())
-    print("stam", genome.return_max_stam())
-    print("str", genome.return_str())
     for i in range(5):
         #roll a number to see if the stat will go up or down if rolled
         plus_minus = random.randint(0,1)
@@ -381,12 +386,6 @@ def mutation(genome, TurnsPerGen, Mut_chance):
                     new_val /= 100
                 genome.update_str(new_val)
     # return  the mutated 'genome'
-    print("post")
-    print("neck", genome.return_neck_type())
-    print("eye", genome.return_eagle_eye())
-    print("speed", genome.return_speed())
-    print("stam", genome.return_max_stam())
-    print("str", genome.return_str())
     return(genome)
 ############################################################################################################
 # CrossOver function
