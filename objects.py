@@ -182,7 +182,7 @@ class Creature:
 # *******************************************************************************************
         if hazard_type == 5:  # Tree predators
             if self.long_neck >= 0.7:
-                self.fitness -= ((self.long_neck - 0.7) / 0.3)
+                self.fitness -= ((self.long_neck - 0.7) / 0.3) * 4
 
 # *******************************************************************************************
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
@@ -535,6 +535,7 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
         del copy_new_population[p2_index-1]
     return(children)
 
+# function that mutates just the neck length (Only used if creatures are unable to reach any food at all.
 def mutate_neck(Population, Mut_chance):
     m_roll = random.randint(1,100)
     if Mut_chance != 1:
@@ -578,6 +579,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
         new_population.append(Population[i])
         # mutate the parents if they have a low fitness to avoid stagnation
     for i in range(len(new_population)):
+        # if a creature in the top 50% gets no food, mutates their neck so that we can push the pop in a direction that will provide a vioable solution
         if new_population[i].return_food_ate() == 0:
             new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
