@@ -193,12 +193,7 @@ while running:
 
             # delete the old pop and create the new one
             Population, fittest_creature, stop = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
-            if stop == True:
-                stop_count += 1
-                if stop_count >= 150:
-                    alert(text="Your creatures have died out. Press ok to continue", title=":(", button='Ok')
-                    stophit()
-                    stop_count = 0
+            # reset fitness and food eaten vals for the pop
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
                 Population[i].update_food_ate(0)
