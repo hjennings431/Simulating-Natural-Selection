@@ -6,7 +6,7 @@ import Display
 # Common base class for all creatures.
 ############################################################################################################
 class Creature:
-    def __init__(self, long_neck, eagle_eye, speed, max_stamina, remaining_moves, strength, fitness, position, can_move):
+    def __init__(self, long_neck, eagle_eye, speed, max_stamina, remaining_moves, strength, fitness, position, can_move, food_ate):
         self.long_neck = long_neck                  # a float to represent a creatures neck length
         self.eagle_eye = eagle_eye                  # a float to indicate a creatures vision stat
         self.speed = speed                          # a float to determine a creatures speed (Movement order)
@@ -16,6 +16,7 @@ class Creature:
         self.fitness = fitness                      # an int to show how fit a specific instance of a creature is (intially set to 0), this is the amount of food they find in a generation.
         self.position = position                    # references a coord position, this is where the creature is currently positioned.
         self.can_move = can_move                     # bool that tells the movement function whether it can move
+        self.food_ate = food_ate
 
     #function to get position
     def return_position(self): # returns a creatures current position
@@ -41,6 +42,9 @@ class Creature:
     # returns remaining moves
     def return_remaining_moves(self):
         return(self.remaining_moves)
+    #return food ate
+    def return_food_ate(self):
+        return(self.food_ate)
     # function to update neck
     def update_neck(self,new_neck):
         self.long_neck = new_neck
@@ -66,7 +70,9 @@ class Creature:
     # updates the remaining moves
     def update_remaining_moves(self, new_moves):
         self.remaining_moves = new_moves
-
+    #update food ate
+    def update_food_ate(self, new_val):
+        self.food_ate = new_val
     # function to determine the best move and then make the move
     def update_position(self, XL, YL, Stop, L_food, L_hazards):
         potential_x = 0 ; potential_y = 0; direction = 0; ate_food_flag = False
@@ -137,6 +143,7 @@ class Creature:
             self.position = (new_pos_x, new_pos_y)
 
             if ate_food_flag:
+                self.food_ate += 1
                 self.eat_food(L_food, new_pos_x, new_pos_y, can_eat)
             # Resolves hazards on new tile
             self.check_hazard(L_hazards, new_pos_x, new_pos_y)
@@ -516,8 +523,8 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
                     c1_str = round((c1_str / 100), 2)
                     c2_str = round((c2_str / 100), 2)
 
-        c1 = Creature(c1_neck, c1_sight, c1_speed, c1_stam, c1_stam, c1_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True)
-        c2 = Creature(c2_neck, c2_sight, c2_speed, c2_stam, c2_stam, c2_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True)
+        c1 = Creature(c1_neck, c1_sight, c1_speed, c1_stam, c1_stam, c1_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True, 0)
+        c2 = Creature(c2_neck, c2_sight, c2_speed, c2_stam, c2_stam, c2_str, 0, (random.randint(0, XW - 1), random.randint(0, YW - 1)), True, 0)
         c1 = mutation(c1, TurnsPerGen, Mut_chance)
         c2 = mutation(c2, TurnsPerGen, Mut_chance)
         c1.update_stam(c1.return_max_stam(), TurnsPerGen)
@@ -527,6 +534,28 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
         del copy_new_population[p1_index]
         del copy_new_population[p2_index-1]
     return(children)
+
+def mutate_neck(Population, Mut_chance):
+    m_roll = random.randint(1,100)
+    if Mut_chance != 1:
+        Mut_chance = int(Mut_chance/2)
+    if m_roll <= Mut_chance:
+        for i in range(len(Population)):
+            plus_minus = random.randint(0,1)
+            if plus_minus == 1:
+                phold = Population[i].return_neck_type() * 100
+                new_val = phold + 10
+                if new_val > 100:
+                    new_val = 100
+                new_val /= 100
+            else:
+                phold = Population[i].return_neck_type() * 100
+                new_val = phold - 10
+                if new_val < 10:
+                    new_val = 10
+                new_val /= 100
+            Population[i].update_neck(new_val)
+    return (Population)
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
@@ -539,9 +568,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
     Population.sort(key = attrgetter('fitness'), reverse=True)
     #check for new best
     if Population[0].return_fitness() > fittest.return_fitness():
-        #print("Pop 0",Population[0].return_fitness())
-        p_hold = Population[0].return_max_stam()
-        fittest = Creature(Population[0].return_neck_type(), Population[0].return_eagle_eye(), Population[0].return_speed(), Population[0].return_max_stam(), 0, Population[0].return_str(), Population[0].return_fitness(), (0,0), False)
+        fittest = Creature(Population[0].return_neck_type(), Population[0].return_eagle_eye(), Population[0].return_speed(), Population[0].return_max_stam(), 0, Population[0].return_str(), Population[0].return_fitness(), (0,0), False, 0)
     cutoff = round(NoOfBobs / 2)
     if NoOfBobs > len(Population):
         creatures_to_add = NoOfBobs - len(Population)
@@ -550,13 +577,9 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
     for i in range(cutoff):
         new_population.append(Population[i])
         # mutate the parents if they have a low fitness to avoid stagnation
-    count = 0
     for i in range(len(new_population)):
-        if new_population[i].return_fitness() < 5:
-            count += 1
-            new_population[i] = mutation(new_population[i], TurnsPerGen, Mut_chance)
-    if count == len(new_population):
-        stop = True
+        if new_population[i].return_food_ate() == 0:
+            new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
     for i in range(len(new_population)):
         copy.append(new_population[i])
@@ -627,7 +650,7 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
         else:
             str_val = random.randint(4,6) / 10
 
-        shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1),random.randint(0, YW - 1)), True))
+        shortlist.append(Creature(neck_val, sight_val, speed_val, stam_val, 0, str_val, 0, (random.randint(0, XW - 1),random.randint(0, YW - 1)), True, 0))
     if reset == True:
         Population = []
     for i in range(len(shortlist)):
