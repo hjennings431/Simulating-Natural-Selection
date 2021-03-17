@@ -47,7 +47,7 @@ def stophit():
 def pausehit():
     global pause_sim; pause_sim=True
 def reset_fittest():
-    global fittest_creature; fittest_creature = Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False)
+    global fittest_creature; fittest_creature = Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False, 0)
 # Variables for the organisms
 NoOfBobs = 100              # Number Of Creatures
 WldStop=False               # World Boundary - True=stop there, False=Wrap Around
@@ -143,7 +143,7 @@ possible_x = []
 possible_y = []
 L_food = np.empty((XWorld,YWorld), dtype=object)
 # setting up a dummy fittest creature for the genetic algorithm to compare to
-fittest_creature = Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False)
+fittest_creature = Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False, 0)
 # adding all possible x and y coords to 2 seperate lists
 for i in range(XWorld):
     possible_x.append(i)
@@ -195,11 +195,13 @@ while running:
             Population, fittest_creature, stop = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
             if stop == True:
                 stop_count += 1
-                if stop_count >= 10:
+                if stop_count >= 150:
                     alert(text="Your creatures have died out. Press ok to continue", title=":(", button='Ok')
                     stophit()
+                    stop_count = 0
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
+                Population[i].update_food_ate(0)
         # Reset the food
             reset_food(all_coord_combos, L_food)
             generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
