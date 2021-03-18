@@ -123,7 +123,7 @@ HazardA = checkbox(pygame, (255,255,255), 10, 470, 15, 15, check=True, text="Tho
 HazardB = checkbox(pygame, (255,255,255), 110, 470, 15, 15, check=True, text="Tar Pits")
 HazardC = checkbox(pygame, (255,255,255), 10, 490, 15, 15, check=True, text="Gas")
 HazardD = checkbox(pygame, (255,255,255), 110, 490, 15, 15, check=True, text="Predators")
-HazardE = checkbox(pygame, (255,255,255), 10, 510, 15, 15, check=True, text="Tree Preds")
+HazardE = checkbox(pygame, (255,255,255), 10, 510, 15, 15, check=True, text="Tree Pred")
 HazardF = checkbox(pygame, (255,255,255), 110, 510, 15, 15, check=True, text="Snakes")
 hazard_toggles = []
 hazard_toggles.append(HazardA); hazard_toggles.append(HazardB); hazard_toggles.append(HazardC); hazard_toggles.append(HazardD); hazard_toggles.append(HazardE); hazard_toggles.append(HazardF)
@@ -303,7 +303,7 @@ while running:
                 if (HazardC.isOver(event.pos)): HazardC.convert()
                 if (HazardD.isOver(event.pos)): HazardD.convert()
                 if (HazardE.isOver(event.pos)): HazardE.convert()
-                if (HazardF.isOver(event.pos)): HazardE.convert()
+                if (HazardF.isOver(event.pos)): HazardF.convert()
     # Handle the Start Button
         StartButton.listen(event); StartButton.draw()
     # Handle the Stop Button
