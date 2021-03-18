@@ -1,6 +1,5 @@
 import random
 from operator import attrgetter
-import Display
 
 ############################################################################################################
 # Common base class for all creatures.
@@ -156,7 +155,6 @@ class Creature:
 
             if self.remaining_moves <= 0:
                 self.can_move = False
-
 
     # function to check current tile for hazards
     def check_hazard(self, L_hazards, x_coord, y_coord):
