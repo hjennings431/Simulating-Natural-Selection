@@ -14,10 +14,10 @@ class Creature:
         self.strength = strength                    # a float to indicate a creatures strength
         self.fitness = fitness                      # an int to show how fit a specific instance of a creature is (intially set to 0), this is the amount of food they find in a generation.
         self.position = position                    # references a coord position, this is where the creature is currently positioned.
-        self.can_move = can_move                     # bool that tells the movement function whether it can move
-        self.food_ate = food_ate
+        self.can_move = can_move                    # bool that tells the movement function whether it can move
+        self.food_ate = food_ate                    # references the amount of food a creature has eaten, used to determine neck growth/decline
 
-    #function to get position
+    #function to get a creatures current position
     def return_position(self): # returns a creatures current position
         return(self.position)
     #function to get fitness
@@ -104,7 +104,6 @@ class Creature:
                 is_food = L_food[potential_x, potential_y].food_type
                 if is_food != 0:
                     can_eat = self.can_eat_tile(L_food, potential_x, potential_y)
-# *******************************************************************************************
                 if can_eat > 0:
                     fpossible[i] = True
 
@@ -200,7 +199,6 @@ class Creature:
                 return ((neck_val - 0.5) / 0.2)
         return (0.0)
 
-# *******************************************************************************************
     # function to eat the food at a tile passed to it and update the food array and creatures fitness
     def eat_food(self, L_food, x_coord, y_coord, food_weight):
         self.fitness += food_weight
