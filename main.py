@@ -106,14 +106,14 @@ BushFoodPct_WhereY = 300
 BushFoodPct_slide = Slider(Screen, 10, BushFoodPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=BushFoodPct,  handleColour=(slider_handle_color), colour=(slider_color))
 BushFoodPct_label = TextBox(Screen, 10, BushFoodPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 BushFoodPct_value = TextBox(Screen, 150, BushFoodPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
-# Hazard Slider
+# Mutation Slider
 HazardPct_WhereY = 350
-MutationPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=0, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
+MutationPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=1, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
 MutationPct_label = TextBox(Screen, 10, HazardPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 MutationPct_value = TextBox(Screen, 150, HazardPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
-# Mutation slider
+# Hazard slider
 MutationPct_WhereY = 400
-HazardPct_slide = Slider(Screen, 10, MutationPct_WhereY+30, 190, 3, handleRadius=5, min=1, max = 100, step = 1, initial=Mut_chance, handleColour=(slider_handle_color), colour=(slider_color))
+HazardPct_slide = Slider(Screen, 10, MutationPct_WhereY+30, 190, 3, handleRadius=5, min=0, max = 100, step = 1, initial=Mut_chance, handleColour=(slider_handle_color), colour=(slider_color))
 HazardPct_label = TextBox(Screen, 10, MutationPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 HazardPct_value = TextBox(Screen, 150, MutationPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # *********************************************************************************************************************
@@ -287,10 +287,10 @@ while running:
             MutationPct_slide.listen(event); MutationPct_slide.draw()
             MutationPct_value.setText(MutationPct_slide.getValue()); MutationPct_value.draw()
             MutationPct_label.setText("Mutation %"); MutationPct_label.draw()
-        # Handle the mutation % slider
+        # Handle the hazard % slider
             pygame.draw.rect(Screen, background_color, (0,MutationPct_WhereY, BdrLeft, 45))
             HazardPct_slide.listen(event); HazardPct_slide.draw()
-            HazardPct_value.setText(MutationPct_slide.getValue()); HazardPct_value.draw()
+            HazardPct_value.setText(HazardPct_slide.getValue()); HazardPct_value.draw()
             HazardPct_label.setText("Hazard %"); HazardPct_label.draw()
         # Handle the Hazard checkboxes
             pygame.draw.rect(Screen, background_color, (10, 470, BdrLeft-10, 60) )
