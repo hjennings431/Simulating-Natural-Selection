@@ -177,12 +177,14 @@ class Creature:
             if self.strength >=0.7:
                 self.fitness -= 1
 
-# *******************************************************************************************
         if hazard_type == 5:  # Tree predators
             if self.long_neck >= 0.7:
                 self.fitness -= ((self.long_neck - 0.7) / 0.3) * 4
 
-# *******************************************************************************************
+        if hazard_type == 6: # Snakes
+            if self.long_neck <= 0.5:
+                self.fitness -= ((0.5 - self.long_neck) / 0.3) * 4
+
     # function to check the current tile for food, returns true if it contains any type of food that it can eat
     def can_eat_tile(self, L_food, x_coord, y_coord):
         type_of_current_tile = L_food[x_coord, y_coord].food_type
@@ -264,12 +266,12 @@ class Hazards:
 # Function to generate the set of hazards
 ############################################################################################################
 def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards, hazard_toggles):
-    ################### Thorns, Tar Pit, Gas, Predators, Tree predators ####################################
-    potential_hazards = [False, False, False, False, False]
+    ################### Thorns, Tar Pit, Gas, Predators, Tree predators Snakes #############################
+    potential_hazards = [False, False, False, False, False, False]
     hazard_index = []
     num_of_toggles = 0
     hazard_type = 0
-    for i in range(5):
+    for i in range(6):
         if hazard_toggles[i].isChecked() == True:
             potential_hazards[i] == True
             num_of_toggles += 1
