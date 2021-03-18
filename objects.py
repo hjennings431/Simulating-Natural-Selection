@@ -56,7 +56,7 @@ class Creature:
     # function to update stamina
     def update_stam(self,new_stam, TurnsPerGen):
         self.max_stamina = new_stam
-        multiplier = (TurnsPerGen*2) - round((TurnsPerGen * 0.2))
+        multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
         self.remaining_moves = int(new_stam * multiplier)
     # function to update strength
     def update_str(self, new_str):
