@@ -316,19 +316,19 @@ class Creature:
             pass
         if hazard_type == 1: # Thorns
             if self.speed >= 0.7:
-                self.fitness -= 1
+                self.fitness -= ((self.speed - 0.7) / 0.3) * 4
 
         if hazard_type == 2: # Tar pits that affect creatures with higher stamina more
             if self.max_stamina >=0.7:
-                self.fitness -= 1
+                self.fitness -= ((self.max_stamina - 0.7) / 0.3) * 4
 
         if hazard_type == 3: # Gas
             if self.eagle_eye >=0.7:
-                self.fitness -= 1
+                self.fitness -= ((self.eagle_eye - 0.7) / 0.3) * 4
 
         if hazard_type == 4: # Land Predators
             if self.strength >=0.7:
-                self.fitness -= 1
+                self.fitness -= ((self.strength - 0.7) / 0.3) * 4
 
         if hazard_type == 5:  # Tree predators
             if self.long_neck >= 0.7:
@@ -900,10 +900,10 @@ def creature_fight(Population, fight_card):
     total = creature1_str + creature2_str
     if creature1_str > creature2_str:
         total += 10
-        c_mod = 10
+        c_mod = 15
     if creature2_str > creature1_str:
         total += 10
-        c_mod = -10
+        c_mod = -15
     roll = random.randint(1, total)
     # c1 winner
     if roll <= (creature1_str + c_mod):
