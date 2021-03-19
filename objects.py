@@ -734,7 +734,8 @@ def fight_club(Population):
 #######################################################################################
 
 def creature_fight(Population, fight_card):
-    # get all the values for the fighting creatures
+    # get all the values for the fighting creatures#
+    c_mod = 0
     creature1_str = round((Population[fight_card[0]].return_str()*100))
     creature2_str = round((Population[fight_card[1]].return_str()*100))
     c1_fit = Population[fight_card[0]].return_fitness()
@@ -743,9 +744,15 @@ def creature_fight(Population, fight_card):
     c2_moves = Population[fight_card[1]].return_remaining_moves()
     # get the total roll and roll for a probability that determines the winner
     total = creature1_str + creature2_str
+    if creature1_str > creature2_str:
+        total += 10
+        c_mod = 10
+    if creature2_str > creature1_str:
+        total += 10
+        c_mod = -10
     roll = random.randint(1, total)
     # c1 winner
-    if roll <= creature1_str:
+    if roll <= (creature1_str + c_mod):
         # winner +1 fit -2 moves
         c1_fit += 1; c1_moves -= 2; c2_fit -= 1; c2_moves -= 1
         Population[fight_card[0]].update_fitness(c1_fit)
