@@ -5,10 +5,11 @@ food_colour = (51,204,51)                   # Normal food tile colour
 tallfood_colour = (20,82,20)                # Tall food tile colour
 bushfood_colour = (112,219,112)             # Bush food tile colour
 hazard1_color = (255,0,0)                   # Hazard colour
-hazard2_color = (255,50,0)                  # Hazard colour
+hazard2_color = (255,70,0)                  # Hazard colour
 hazard3_color = (255,100,0)                 # Hazard colour
 hazard4_color = (255,150,0)                 # Hazard colour
-hazard5_color = (255,200,0)                 # Hazard colour
+hazard5_color = (255,180,0)                 # Hazard colour
+hazard6_color = (255,210,0)                 # Hazard color
 background_color = (20,20,30)               # Define the background color
 grid_color = (50,50,50)                     # Define the grid line color
 border_color = (255,255,255)                # Define the line color
@@ -27,15 +28,15 @@ grid_X_num = 32                             # Number of X grid lines
 grid_Y_num = 10                             # Number of Y grid lines
 axis_label_color = (255,255,255)            # Axis label color
 axis_space = 20                             # Axis spacing from border
-attr1_color = (255,128,128)                 # Attribute 1 graph color
+attr1_color = (0,191,255)                   # Attribute 1 graph color
 attr1_label = "Neck Length"                 # Attribute 1 graph label
-attr2_color = (255,255,128)                 # Attribute 2 graph color
+attr2_color = (255,255,0)                   # Attribute 2 graph color
 attr2_label = "Strength"                    # Attribute 2 graph label
-attr3_color = (255,128,255)                 # Attribute 3 graph color
+attr3_color = (255,0,127)                   # Attribute 3 graph color
 attr3_label = "Vision"                      # Attribute 3 graph label
-attr4_color = (128,128,255)                 # Attribute 4 graph color
+attr4_color = (0,0,255)                     # Attribute 4 graph color
 attr4_label = "Stamina"                     # Attribute 4 graph label
-attr5_color = (128, 255, 128)               # Attribute 5 graph color
+attr5_color = (120, 255, 0)                 # Attribute 5 graph color
 attr5_label = "Speed"                       # Attribute 5 graph label
 
 
@@ -165,6 +166,10 @@ def draw_key(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb ):
     pygame.draw.line(scn, hazard5_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard5_color, [xx+10, yy], [xx+10, yy+10])
     pygame.draw.line(scn, hazard5_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard5_color, [xx, yy+10], [xx, yy])
     img = font.render('Tree Predators', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
+    yy += stepy;
+    pygame.draw.line(scn, hazard5_color, [xx, yy], [xx+10, yy]);       pygame.draw.line(scn, hazard6_color, [xx+10, yy], [xx+10, yy+10])
+    pygame.draw.line(scn, hazard5_color, [xx+10, yy+10], [xx, yy+10]); pygame.draw.line(scn, hazard6_color, [xx, yy+10], [xx, yy])
+    img = font.render('Snakes', True, key_label_color); scn.blit(img, (xx + 20, yy - 4))
 ###########################################################################################################
 # Procedure to draw the stats of the fittest creature
 ############################################################################################################
@@ -290,6 +295,7 @@ def draw_hazard(pygame, scn, xw, yw, w, h, bdl, bdr, bdt, bdb, tiles, dg):
                 if (tiles[i, j].hazard_type == 3): hazard_color = hazard3_color
                 if (tiles[i, j].hazard_type == 4): hazard_color = hazard4_color
                 if (tiles[i, j].hazard_type == 5): hazard_color = hazard5_color
+                if (tiles[i, j].hazard_type == 6): hazard_color = hazard6_color
                 xy = (i,j)
                 x = bdl + (xy[0] * stepx)
                 y = bdt + (xy[1] * stepy)
