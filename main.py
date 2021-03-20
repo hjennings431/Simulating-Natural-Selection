@@ -8,13 +8,13 @@ from Objects import *
 from pygame_widgets import *
 from operator import attrgetter
 from pymsgbox import *
-
+random.seed(10)
 running = True
 run_sim = True
 stop_sim = True
 pause_sim = False
 ############################################################################################################
-# Button Press handlers (need to bee here for the correct namescope
+# Button Press handlers (need to be here for the correct name scope)
 #############################################################################################################
 def starthit():
     global run_sim; run_sim = True
@@ -33,10 +33,12 @@ def starthit():
         last_plot5 = (-1, -1)
         draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
         Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+        reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
         graph_points = (Generations/10)
         reset_fittest()
+        random.seed(10)
     pause_sim = False
 
 def stophit():
@@ -160,7 +162,10 @@ reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
 
 # Generate Population
-Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+#Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
+for i in range(NoOfBobs):
+    Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5*multiplier), 0.5, 0, (random.randint(0, XWorld - 1),random.randint(0, YWorld - 1)), True, 0))
 
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
@@ -191,9 +196,8 @@ while running:
             BushFoodPct = BushFoodPct_slide.getValue()
             HazardPct = HazardPct_slide.getValue()
             Mut_chance = MutationPct_slide.getValue()
-
             # delete the old pop and create the new one
-            Population, fittest_creature, stop = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
+            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance, TallFoodPct)
             # reset fitness and food eaten vals for the pop
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
