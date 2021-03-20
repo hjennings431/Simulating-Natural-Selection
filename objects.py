@@ -139,9 +139,6 @@ class Creature:
         # Create new position
             new_pos_x = self.position[0] + xpossible[direction]
             new_pos_y = self.position[1] + ypossible[direction]
-            print("my direction was", direction)
-            print("my new x is", new_pos_x)
-            print("my new y is", new_pos_y)
             # Stop at world edge
             if (Stop):
                 if (new_pos_x < 0):     new_pos_x = 0
@@ -162,7 +159,7 @@ class Creature:
                 self.eat_food(L_food, new_pos_x, new_pos_y, can_eat)
             # Resolves hazards on new tile
             self.check_hazard(L_hazards, new_pos_x, new_pos_y)
-            if self.speed <= 0.2:
+            if self.speed <=0.2 :
                 pass
             if self.speed >= 0.7:
                 self.remaining_moves -=2
@@ -571,8 +568,8 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
                         range_bot = int((p1.return_neck_type() * 100))
                         range_top = int((p2.return_neck_type() * 100))
                     else:
-                        range_bot = int((p2.return_neck_type() *100))
-                        range_top = int((p1.return_neck_type() *100))
+                        range_bot = int((p2.return_neck_type() * 100))
+                        range_top = int((p1.return_neck_type() * 100))
                     c1_neck = random.randint(range_bot, range_top)
                     c2_neck = random.randint(range_bot, range_top)
                     c1_neck = round((c1_neck / 100), 2)
@@ -687,28 +684,6 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
         del copy_new_population[p2_index-1]
     return(children)
 
-# function that mutates just the neck length (Only used if creatures are unable to reach any food at all.
-def mutate_neck(Population, Mut_chance):
-    m_roll = random.randint(1,100)
-    if Mut_chance != 1:
-        Mut_chance = int(Mut_chance/2)
-    if m_roll <= Mut_chance:
-        for i in range(len(Population)):
-            plus_minus = random.randint(0,1)
-            if plus_minus == 1:
-                phold = Population[i].return_neck_type() * 100
-                new_val = phold + 10
-                if new_val > 100:
-                    new_val = 100
-                new_val /= 100
-            else:
-                phold = Population[i].return_neck_type() * 100
-                new_val = phold - 10
-                if new_val < 10:
-                    new_val = 10
-                new_val /= 100
-            Population[i].update_neck(new_val)
-    return (Population)
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
@@ -730,10 +705,10 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
     for i in range(cutoff):
         new_population.append(Population[i])
         # mutate the parents if they have a low fitness to avoid stagnation
-    for i in range(len(new_population)):
+    #for i in range(len(new_population)):
         # if a creature in the top 50% gets no food, mutates their neck so that we can push the pop in a direction that will provide a vioable solution
-        if new_population[i].return_food_ate() == 0:
-            new_population = mutate_neck(new_population, Mut_chance)
+     #   if new_population[i].return_food_ate() == 0:
+      #      new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
     for i in range(len(new_population)):
         copy.append(new_population[i])
