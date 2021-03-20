@@ -1,6 +1,6 @@
 import random
 from operator import attrgetter
-
+random.seed(10)
 ############################################################################################################
 # Common base class for all creatures.
 ############################################################################################################
@@ -462,13 +462,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 0:
                 if plus_minus == 1:
                     phold = genome.return_neck_type()*100
-                    new_val = phold + 10
+                    new_val = phold + 5
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_neck_type()*100
-                    new_val = phold - 10
+                    new_val = phold - 5
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -478,13 +478,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 1:
                 if plus_minus == 1:
                     phold = genome.return_eagle_eye()*100
-                    new_val = phold + 10
+                    new_val = phold + 5
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_eagle_eye()*100
-                    new_val = phold - 10
+                    new_val = phold - 5
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -494,13 +494,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 2:
                 if plus_minus == 1:
                     phold = genome.return_speed()*100
-                    new_val = phold + 10
+                    new_val = phold + 5
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 10
+                    new_val = phold - 5
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -510,13 +510,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 3:
                 if plus_minus == 1:
                     phold = genome.return_max_stam()*100
-                    new_val = phold + 10
+                    new_val = phold + 5
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 10
+                    new_val = phold - 5
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -525,13 +525,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 4:
                 if plus_minus == 1:
                     phold = genome.return_str()*100
-                    new_val = phold + 10
+                    new_val = phold + 5
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 10
+                    new_val = phold - 5
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -687,13 +687,12 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
-def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
-    stop = False
+def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, TallFoodPct):
+    neck_sort = True
     new_population = []
     copy = []
-    copy2 = []
     # sort the pop based on fitness
-    Population.sort(key = attrgetter('fitness'), reverse=True)
+    Population.sort(key=attrgetter('fitness'), reverse=True)
     #check for new best
     if Population[0].return_fitness() > fittest.return_fitness():
         fittest = Creature(Population[0].return_neck_type(), Population[0].return_eagle_eye(), Population[0].return_speed(), Population[0].return_max_stam(), 0, Population[0].return_str(), Population[0].return_fitness(), (0,0), False, 0)
@@ -704,11 +703,6 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
     # passing the top 50% solutions down to the next generation (They survived)
     for i in range(cutoff):
         new_population.append(Population[i])
-        # mutate the parents if they have a low fitness to avoid stagnation
-    #for i in range(len(new_population)):
-        # if a creature in the top 50% gets no food, mutates their neck so that we can push the pop in a direction that will provide a vioable solution
-     #   if new_population[i].return_food_ate() == 0:
-      #      new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
     for i in range(len(new_population)):
         copy.append(new_population[i])
@@ -721,7 +715,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
         new_population[i].update_stam(stam_val, TurnsPerGen)
     #replacing the old pop
     Population = new_population
-    return(Population, fittest, stop)
+    return(Population, fittest)
 ############################################################################################################
 # Function to generate a set of random creatures
 ############################################################################################################
