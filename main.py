@@ -32,7 +32,9 @@ def starthit():
         last_plot4 = (-1, -1)
         last_plot5 = (-1, -1)
         draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
-        Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+        Population = []
+        for i in range(NoOfBobs):
+            Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
         reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
@@ -69,6 +71,7 @@ BushFoodPct = 5             # Percentage chance food tile being bush food
 HazardPct = 5               # Hazard Percentage
 HazardTypes = 5             # Number of Hazard types
 Mut_chance = 3              # Mutation chance
+multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
 # Set up the screen and set the background color
 pygame.init()
 Screen = pygame.display.set_mode((Width, Height))
@@ -163,7 +166,6 @@ generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
 
 # Generate Population
 #Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
-multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
 for i in range(NoOfBobs):
     Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5*multiplier), 0.5, 0, (random.randint(0, XWorld - 1),random.randint(0, YWorld - 1)), True, 0))
 
