@@ -108,12 +108,12 @@ BushFoodPct_label = TextBox(Screen, 10, BushFoodPct_WhereY, 100, 24, fontSize=24
 BushFoodPct_value = TextBox(Screen, 150, BushFoodPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Mutation Slider
 HazardPct_WhereY = 350
-MutationPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=1, max=100, step=1, initial=HazardPct,  handleColour=(slider_handle_color), colour=(slider_color))
+MutationPct_slide = Slider(Screen, 10, HazardPct_WhereY+30, 190, 3, handleRadius=5, min=1, max=100, step=1, initial=Mut_chance,  handleColour=(slider_handle_color), colour=(slider_color))
 MutationPct_label = TextBox(Screen, 10, HazardPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 MutationPct_value = TextBox(Screen, 150, HazardPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Hazard slider
 MutationPct_WhereY = 400
-HazardPct_slide = Slider(Screen, 10, MutationPct_WhereY+30, 190, 3, handleRadius=5, min=0, max = 100, step = 1, initial=Mut_chance, handleColour=(slider_handle_color), colour=(slider_color))
+HazardPct_slide = Slider(Screen, 10, MutationPct_WhereY+30, 190, 3, handleRadius=5, min=0, max = 100, step = 1, initial=HazardPct, handleColour=(slider_handle_color), colour=(slider_color))
 HazardPct_label = TextBox(Screen, 10, MutationPct_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 HazardPct_value = TextBox(Screen, 150, MutationPct_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # *********************************************************************************************************************
@@ -123,7 +123,7 @@ HazardA = checkbox(pygame, (255,255,255), 10, 470, 15, 15, check=True, text="Tho
 HazardB = checkbox(pygame, (255,255,255), 110, 470, 15, 15, check=True, text="Tar Pits")
 HazardC = checkbox(pygame, (255,255,255), 10, 490, 15, 15, check=True, text="Gas")
 HazardD = checkbox(pygame, (255,255,255), 110, 490, 15, 15, check=True, text="Predators")
-HazardE = checkbox(pygame, (255,255,255), 10, 510, 15, 15, check=True, text="Tree Pred")
+HazardE = checkbox(pygame, (255,255,255), 10, 510, 15, 15, check=True, text="Tree Pred.")
 HazardF = checkbox(pygame, (255,255,255), 110, 510, 15, 15, check=True, text="Snakes")
 hazard_toggles = []
 hazard_toggles.append(HazardA); hazard_toggles.append(HazardB); hazard_toggles.append(HazardC); hazard_toggles.append(HazardD); hazard_toggles.append(HazardE); hazard_toggles.append(HazardF)
@@ -221,7 +221,7 @@ while running:
             attr2 = get_average_str(graph_pop)
             last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr2, attr2_color, last_plot2)
             attr3 = get_average_vision(graph_pop)
-            #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, Generations, gens_left, attr3, attr3_color, last_plot3)
+            last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(graph_pop)
             last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr4, attr4_color, last_plot4)
             attr5 = get_average_speed(graph_pop)
