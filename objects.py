@@ -72,6 +72,7 @@ class Creature:
     def update_food_ate(self, new_val):
         self.food_ate = new_val
 
+
 ############################################################################################################
 # function to determine a creatures move and update its position as well as resolve all hazards and food
 ############################################################################################################
@@ -412,6 +413,7 @@ def generate_hazards(all_coord_combos, hazard_pct, hazard_types,  L_hazards, haz
     # Update the food
         p_holder = all_coord_combos[i]
         L_hazards[p_holder[0], p_holder[1]].update_hazard(hazard_type)
+
 ############################################################################################################
 # Function to reset all hazards
 ############################################################################################################
@@ -420,6 +422,15 @@ def reset_hazards(all_coord_combos, L_hazards):
         p_holder = all_coord_combos[i]
         input_hazard = Hazards(p_holder, 0)
         L_hazards[p_holder[0], p_holder[1]] = input_hazard
+
+############################################################################################################
+# function to check if a given coord is outside the world and wrap back around if it is
+############################################################################################################
+    def wrap_edge(possible_x, possible_y, XW, YW):
+        if (possible_x < 0):     possible_x = XW - 1
+        if (possible_x >= XW):   possible_x = 0
+        if (possible_y < 0):     possible_y = YW - 1
+        if (possible_y >= YW):   possible_y = 0
 
 ############################################################################################################
 # Function to generate a set of random creatures
