@@ -182,7 +182,7 @@ while running:
         Population.sort(key=attrgetter('speed'), reverse=True)
         for j in range(MovesPerTurn):
             for i in range(len(Population)):
-                Population[i].update_position(XWorld, YWorld, WldStop, L_food, L_hazards)
+                Population[i].update_position(XWorld, YWorld, L_food, L_hazards)
             count -=1
         # find any instances where a creature fight will occur and resolve them
         Population = fight_club(Population)
