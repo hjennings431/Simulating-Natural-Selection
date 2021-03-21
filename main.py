@@ -8,6 +8,7 @@ from Objects import *
 from pygame_widgets import *
 from operator import attrgetter
 from pymsgbox import *
+from Genetic import *
 random.seed(10)
 running = True
 run_sim = True
@@ -26,27 +27,26 @@ def starthit():
     global count
 # For a restart reset everything you need here
     if not pause_sim:
+        random.seed(10)
         last_plot1 = (-1, -1)
         last_plot2 = (-1, -1)
         last_plot3 = (-1, -1)
         last_plot4 = (-1, -1)
         last_plot5 = (-1, -1)
         draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
-        Population = []
-        for i in range(NoOfBobs):
-            Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
+        Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
         reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
         graph_points = (Generations/10)
         reset_fittest()
-        random.seed(10)
     pause_sim = False
 
 def stophit():
     global run_sim; run_sim=False
     global stop_sim; stop_sim=True
     global pause_sim; pause_sim = False
+    random.seed(10)
 
 def pausehit():
     global pause_sim; pause_sim=True
@@ -54,7 +54,6 @@ def reset_fittest():
     global fittest_creature; fittest_creature = Creature(0.7, 0.8, 0.8, 0.9, 59, 0.5, 0, (0, 0), False, 0)
 # Variables for the organisms
 NoOfBobs = 100              # Number Of Creatures
-WldStop=False               # World Boundary - True=stop there, False=Wrap Around
 DisplaySpeed = 0            # Display update rate
 # Variables for the screen display
 Generations = 1000          # Define how many generations to run
@@ -165,9 +164,8 @@ reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
 
 # Generate Population
-#Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
-for i in range(NoOfBobs):
-    Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5*multiplier), 0.5, 0, (random.randint(0, XWorld - 1),random.randint(0, YWorld - 1)), True, 0))
+Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+
 
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
@@ -233,6 +231,7 @@ while running:
             attr5 = get_average_speed(graph_pop)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
             graph_points -= 1
+
         # reset the graph if the graph has reached the edge
         if graph_points <= 0:
             if gens_left <= 0:
