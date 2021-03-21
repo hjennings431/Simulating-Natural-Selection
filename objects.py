@@ -75,7 +75,7 @@ class Creature:
 ############################################################################################################
 # function to determine a creatures move and update its position as well as resolve all hazards and food
 ############################################################################################################
-    def update_position(self, XL, YL, Stop, L_food, L_hazards):
+    def update_position(self, XL, YL, L_food, L_hazards):
         potential_x = 0 ; potential_y = 0; direction = 0; ate_food_flag = False
         global can_eat
         can_eat = False
@@ -105,27 +105,30 @@ class Creature:
                     potential_moves.append(i)
             # if the list of moves that contain food is empty then a direction is randomly selected and ate food is set to false
             if not potential_moves:
-                if self.eagle_eye >=0.6:
-                    food = True
-                    f_totals = self.eagle_scan(L_food, XL, YL)
-                    for i in range(0,7):
-                        if f_totals[i] != 0:
-                            food = False
-                    if not food:
-                        direction = f_totals.index(max(f_totals))
-                    if food:
-                        direction = random.randint(0,7)
-                    if self.eagle_eye < 0.8:
-                        self.remaining_moves -= 1
-                        if self.remaining_moves < 0:
-                            self.remaining_moves = 0
-                else:
-                    direction = random.randint(0, 7)
-                ate_food_flag = False
+                direction = random.randint(0, 7)
             else:
-                # randomly selecting a move from the list of potential moves
                 direction = random.choice(potential_moves)
                 ate_food_flag = True
+
+                #if self.eagle_eye >=0.6:
+                 #   food = True
+                  #  f_totals = self.eagle_scan(L_food, XL, YL)
+          #          for i in range(0,7):
+           #             if f_totals[i] != 0:
+            #                food = False
+             #       if not food:
+              #          direction = f_totals.index(max(f_totals))
+               #     if food:
+                #        direction = random.randint(0,7)
+                 #   if self.eagle_eye < 0.8:
+                  #      self.remaining_moves -= 1
+                   #     if self.remaining_moves < 0:
+                    #        self.remaining_moves = 0
+                #else:
+
+                #ate_food_flag = False
+            #else:
+                # randomly selecting a move from the list of potential moves
 
             # Create new position
             new_pos_x = self.position[0] + xpossible[direction]
