@@ -1,13 +1,11 @@
 import pygame
 import pygame.freetype
 from pygame.locals import *
-import random
 import numpy as np
 from Display import *
 from Objects import *
 from pygame_widgets import *
 from operator import attrgetter
-from pymsgbox import *
 from Genetic import *
 random.seed(10)
 running = True
@@ -27,26 +25,27 @@ def starthit():
     global count
 # For a restart reset everything you need here
     if not pause_sim:
-        random.seed(10)
         last_plot1 = (-1, -1)
         last_plot2 = (-1, -1)
         last_plot3 = (-1, -1)
         last_plot4 = (-1, -1)
         last_plot5 = (-1, -1)
         draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
-        Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+        Population = []
+        for i in range(NoOfBobs):
+            Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
         reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
         graph_points = (Generations/10)
         reset_fittest()
+        random.seed(10)
     pause_sim = False
 
 def stophit():
     global run_sim; run_sim=False
     global stop_sim; stop_sim=True
     global pause_sim; pause_sim = False
-    random.seed(10)
 
 def pausehit():
     global pause_sim; pause_sim=True
@@ -164,8 +163,9 @@ reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
 
 # Generate Population
-Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
-
+#Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+for i in range(NoOfBobs):
+    Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5*multiplier), 0.5, 0, (random.randint(0, XWorld - 1),random.randint(0, YWorld - 1)), True, 0))
 
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
@@ -197,7 +197,7 @@ while running:
             HazardPct = HazardPct_slide.getValue()
             Mut_chance = MutationPct_slide.getValue()
             # delete the old pop and create the new one
-            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance, TallFoodPct)
+            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
             # reset fitness and food eaten vals for the pop
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
@@ -225,13 +225,12 @@ while running:
             attr2 = get_average_str(graph_pop)
             last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr2, attr2_color, last_plot2)
             attr3 = get_average_vision(graph_pop)
-            last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr3, attr3_color, last_plot3)
+            #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(graph_pop)
             last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr4, attr4_color, last_plot4)
             attr5 = get_average_speed(graph_pop)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
             graph_points -= 1
-
         # reset the graph if the graph has reached the edge
         if graph_points <= 0:
             if gens_left <= 0:
