@@ -55,7 +55,7 @@ class Creature:
     # function to update stamina
     def update_stam(self,new_stam, TurnsPerGen):
         self.max_stamina = new_stam
-        multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
+        multiplier = round((TurnsPerGen))
         self.remaining_moves = int(new_stam * multiplier)
     # function to update strength
     def update_str(self, new_str):
@@ -71,6 +71,29 @@ class Creature:
     #update food ate
     def update_food_ate(self, new_val):
         self.food_ate = new_val
+
+    def balance_stats(self, max_divest, TurnsPerGen):
+        total = self.strength + self.speed + self.max_stamina
+
+        if total > max_divest:
+            print("im total", total)
+            print("PRE BALANCE")
+            print("str", self.strength)
+            print("speed", self.speed)
+            print("stam", self.max_stamina)
+            diff = (total*100) - (max_divest * 100); diff = round(diff/3)
+            new_str = (self.strength*100) - diff; new_str = round(new_str/ 100, 2)
+            new_speed = (self.speed * 100) - diff; new_speed = round(new_speed / 100, 2)
+            new_stamina = (self.max_stamina * 100) - diff; new_stamina = round(new_stamina / 100, 2)
+            total = new_str + new_stamina + new_speed
+            self.update_str(new_str)
+            self.update_stam(new_stamina, TurnsPerGen)
+            self.update_speed(new_speed)
+            print("POST BALANCE")
+            print("str", self.strength)
+            print("speed", self.speed)
+            print("stam", self.max_stamina)
+
 
 
 ############################################################################################################
@@ -435,7 +458,7 @@ def reset_hazards(all_coord_combos, L_hazards):
 ############################################################################################################
 # Function to generate a set of random creatures
 ############################################################################################################
-def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen, Juiced):
+def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen, Juiced, max_divest):
     shortlist = []
     for i in range(num_of_creatures): # standard creature weights
         #### CREATURE INTIIAL STATS CAN BE WEIGHTED HERE ####
@@ -466,13 +489,9 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
         else:
             stam_val = random.randint(4,6) / 10
 
-        if stam_val >= 0.7:
-            max_speed_roll = 65
-        else:
-            max_speed_roll = 100
 
         # speed
-        speed_roll = random.randint(1,max_speed_roll)
+        speed_roll = random.randint(1,100)
         if speed_roll <=40:
             speed_val = random.randint(1,3) / 10
         if speed_roll >= 95:
@@ -495,6 +514,8 @@ def generate_creatures(num_of_creatures, XW, YW, Population, reset, TurnsPerGen,
     for i in range(len(shortlist)):
         shortlist[i].update_stam(shortlist[i].return_max_stam(), TurnsPerGen)
         Population.append(shortlist[i])
+    for i in range(len(Population)):
+        Population[i].balance_stats(max_divest, TurnsPerGen)
     return Population
 
 def wrap_edge(possible_x, possible_y, XW, YW):
@@ -594,13 +615,17 @@ def creature_fight(Population, fight_card):
         # get the total roll and roll for a probability that determines the winner
         total = creature1_str + creature2_str
         if creature1_str > creature2_str:
-            total += 10
+            total -= 10
+            c_mod = 10
         if creature2_str > creature1_str:
             total += 10
+            c_mod = -10
         roll = random.randint(1, total)
         # c1 winner
         if roll <= (creature1_str + c_mod):
             # winner +1 fit -2 moves
+            #diff = abs(round(creature1_str)-(round(creature2_str)))
+            #diff /= 100
             c1_fit += 1; c1_moves -= 2; c2_fit -= 1; c2_moves -= 1
             Population[fight_card[0]].update_fitness(c1_fit)
             Population[fight_card[0]].update_remaining_moves(c1_moves)
