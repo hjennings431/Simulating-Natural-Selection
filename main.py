@@ -36,7 +36,7 @@ def starthit():
             for i in range(NoOfBobs):
                 Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
         else:
-            Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+            Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False, max_divest)
         reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
@@ -60,7 +60,8 @@ DisplaySpeed = 0            # Display update rate
 # Variables for the screen display
 Generations = 1000          # Define how many generations to run
 MovesPerTurn = 1            # Define how many moves to run per turn
-use_gen = False             # true = generate creatures with variance, false = gen all at 0.5
+use_gen = True              # true = generate creatures with variance, false = gen all at 0.5
+max_divest = 2            # Max amount of stats creatures can have for str/stam/speed
 TurnsPerGen = 50            # Define turns per generation
 Width=1010; Height=810      # Define width and height of the display (700x700)
 XWorld=60; YWorld=60        # Define size of the world
@@ -71,8 +72,8 @@ FoodPct = 20                # Percentage chance of food spawning on a tile
 TallFoodPct = 10            # Percentage chance food tile being tall food
 BushFoodPct = 5             # Percentage chance food tile being bush food
 HazardPct = 5               # Hazard Percentage
-HazardTypes = 5             # Number of Hazard types
-Mut_chance = 3              # Mutation chance
+HazardTypes = 6             # Number of Hazard types
+Mut_chance = 5              # Mutation chance
 multiplier = round((TurnsPerGen * 1.5) - (TurnsPerGen * 0.2))
 # Set up the screen and set the background color
 pygame.init()
@@ -171,7 +172,7 @@ if use_gen == False:
     for i in range(NoOfBobs):
         Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
 else:
-    Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
+    Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False, max_divest)
 
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
@@ -203,7 +204,7 @@ while running:
             HazardPct = HazardPct_slide.getValue()
             Mut_chance = MutationPct_slide.getValue()
             # delete the old pop and create the new one
-            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance)
+            Population, fittest_creature = genetic(Population, NoOfBobs, fittest_creature, XWorld, YWorld, TurnsPerGen, Mut_chance, max_divest)
             # reset fitness and food eaten vals for the pop
             for i in range(len(Population)):
                 Population[i].update_fitness(0)
