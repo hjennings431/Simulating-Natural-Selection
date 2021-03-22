@@ -76,11 +76,6 @@ class Creature:
         total = self.strength + self.speed + self.max_stamina
 
         if total > max_divest:
-            print("im total", total)
-            print("PRE BALANCE")
-            print("str", self.strength)
-            print("speed", self.speed)
-            print("stam", self.max_stamina)
             diff = (total*100) - (max_divest * 100); diff = round(diff/3)
             new_str = (self.strength*100) - diff; new_str = round(new_str/ 100, 2)
             new_speed = (self.speed * 100) - diff; new_speed = round(new_speed / 100, 2)
@@ -89,12 +84,6 @@ class Creature:
             self.update_str(new_str)
             self.update_stam(new_stamina, TurnsPerGen)
             self.update_speed(new_speed)
-            print("POST BALANCE")
-            print("str", self.strength)
-            print("speed", self.speed)
-            print("stam", self.max_stamina)
-
-
 
 ############################################################################################################
 # function to determine a creatures move and update its position as well as resolve all hazards and food
@@ -129,29 +118,26 @@ class Creature:
                     potential_moves.append(i)
             # if the list of moves that contain food is empty then a direction is randomly selected and ate food is set to false
             if not potential_moves:
+                ate_food_flag = False
                 direction = random.randint(0, 7)
+                if self.eagle_eye >= 0.6:
+                    not_food = True
+                    f_totals = self.eagle_scan(L_food, XL, YL)
+                    for i in range(0, 7):
+                        if f_totals[i] != 0:
+                            not_food = False
+                    if not not_food:
+                        direction = f_totals.index(max(f_totals))
+                    if not_food:
+                        direction = random.randint(0,7)
+                    self.remaining_moves -= round(4-(self.eagle_eye*2))
+                    if self.remaining_moves < 0:
+                        self.remaining_moves = 0
+                        self.can_move = False
             else:
                 direction = random.choice(potential_moves)
                 ate_food_flag = True
 
-                #if self.eagle_eye >=0.6:
-                 #   food = True
-                  #  f_totals = self.eagle_scan(L_food, XL, YL)
-          #          for i in range(0,7):
-           #             if f_totals[i] != 0:
-            #                food = False
-             #       if not food:
-              #          direction = f_totals.index(max(f_totals))
-               #     if food:
-                #        direction = random.randint(0,7)
-                 #   if self.eagle_eye < 0.8:
-                  #      self.remaining_moves -= 1
-                   #     if self.remaining_moves < 0:
-                    #        self.remaining_moves = 0
-                #else:
-
-                #ate_food_flag = False
-            #else:
                 # randomly selecting a move from the list of potential moves
 
             # Create new position
@@ -182,119 +168,26 @@ class Creature:
 ############################################################################################################
     def eagle_scan(self, L_food, XW, YW):
         global can_eat
-        xpossible=[-1, -1,  0,  1,  1,  1,  0, -1]
-        ypossible=[0, -1, -1, -1,  0,  1,  1,  1]
+        xpossible= [-1, -1,  0,  1,  1,  1,  0, -1]
+        ypossible= [ 0, -1, -1, -1,  0,  1,  1,  1]
         f_totals = []
-        # iterate for all 8 possible moves and all 8 that each of them have
+        # iterate for all 8 possible moves and all 8 possible moves from them
         for i in range(0,7):
             total = 0
-            if i == 0:
-                input_x = self.position[0] - 1
-                input_y = self.position[1]
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    # check for food and update totals if neccessary
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-
-            if i == 1:
-                input_x = self.position[0] - 1
-                input_y = self.position[1] - 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 2:
-                input_x = self.position[0]
-                input_y = self.position[1] - 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 3:
-                input_x = self.position[0] + 1
-                input_y = self.position[1] - 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 4:
-                input_x = self.position[0] + 1
-                input_y = self.position[1]
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 5:
-                input_x = self.position[0] + 1
-                input_y = self.position[1] + 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 6:
-                input_x = self.position[0]
-                input_y = self.position[1] + 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-            if i == 7:
-                input_x = self.position[0] - 1
-                input_y = self.position[1] + 1
-                for j in range(0,7):
-                    possible_x = input_x + xpossible[j]
-                    possible_y = input_y + ypossible[j]
-                    possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
-                    is_food = L_food[possible_x, possible_y].food_type
-                    if is_food != 0:
-                        can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
-                    if can_eat > 0:
-                        total += 1
-                f_totals.append(total)
-        # return thje totals so that a move can be determined
+            input_x = self.position[0] + xpossible[i]
+            input_y = self.position[1] + ypossible[i]
+            for j in range(0, 7):
+                possible_x = input_x + xpossible[j]
+                possible_y = input_y + ypossible[j]
+                possible_x, possible_y = wrap_edge(possible_x, possible_y, XW, YW)
+                is_food = L_food[possible_x, possible_y].food_type
+                # check for food and update totals if neccessary
+                if is_food != 0:
+                    can_eat = self.can_eat_tile(L_food, possible_x, possible_y)
+                if can_eat > 0:
+                    total += 1
+            f_totals.append(total)
+        # return the totals so that a move can be determined
         return(f_totals)
 
 ############################################################################################################
