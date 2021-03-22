@@ -172,22 +172,11 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
                 if p1_or_2 >= 75:
                     c1_speed = p2.return_speed()
                     c2_speed = p1.return_speed()
-                    if c1_stam >= 0.7:
-                        if c1_speed >= 0.6:
-                            c1_speed = ((c1_speed*100)-10) / 100
-                    if c2_stam >= 0.7:
-                        if c2_speed >= 0.6:
-                            c2_speed = ((c2_speed*100)-10) / 100
 
                 if p1_or_2 <= 25:
                     c1_speed = p1.return_speed()
                     c2_speed = p2.return_speed()
-                    if c1_stam >= 0.7:
-                        if c1_speed >= 0.6:
-                            c1_speed = ((c1_speed*100)-10) / 100
-                    if c2_stam >= 0.7:
-                        if c2_speed >= 0.6:
-                            c2_speed = ((c2_speed*100)-10) / 100
+
                 else:
                     if p1.return_speed() <= p2.return_speed():
                         range_bot = int((p1.return_speed() * 100))
@@ -200,12 +189,6 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
                     c2_speed = random.randint(range_bot, range_top)
                     c1_speed = round((c1_speed / 100), 2)
                     c2_speed = round((c2_speed / 100), 2)
-                    if c1_stam >= 0.7:
-                        if c1_speed >= 0.6:
-                            c1_speed = round(((c1_speed*100)-15) / 100)
-                    if c2_stam >= 0.7:
-                        if c2_speed >= 0.6:
-                            c2_speed = round(((c2_speed*100)-15) / 100)
             # strength
             if i == 4:
                 if p1_or_2 >= 75:
@@ -241,7 +224,7 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
-def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
+def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_divest):
     new_population = []
     copy = []
     copy2 = []
@@ -253,7 +236,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
     cutoff = round(NoOfBobs / 2)
     if NoOfBobs > len(Population):
         creatures_to_add = NoOfBobs - len(Population)
-        Population = generate_creatures(creatures_to_add, XW, YW, Population, False, TurnsPerGen, False)
+        Population = generate_creatures(creatures_to_add, XW, YW, Population, False, TurnsPerGen, False, max_divest)
     # passing the top 50% solutions down to the next generation (They survived)
     for i in range(cutoff):
         new_population.append(Population[i])
@@ -274,6 +257,8 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance):
         new_population[i].update_stam(stam_val, TurnsPerGen)
     #replacing the old pop
     Population = new_population
+    for i in range(len(Population)):
+        Population[i].balance_stats(max_divest, TurnsPerGen)
     return(Population, fittest)
 
 ############################################################################################################
@@ -288,13 +273,13 @@ def mutate_neck(Population, Mut_chance):
             plus_minus = random.randint(0,1)
             if plus_minus == 1:
                 phold = Population[i].return_neck_type() * 100
-                new_val = phold + 10
+                new_val = phold + 5
                 if new_val > 100:
                     new_val = 100
                 new_val /= 100
             else:
                 phold = Population[i].return_neck_type() * 100
-                new_val = phold - 10
+                new_val = phold - 5
                 if new_val < 10:
                     new_val = 10
                 new_val /= 100
