@@ -232,7 +232,7 @@ while running:
             attr2 = get_average_str(graph_pop)
             last_plot2 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr2, attr2_color, last_plot2)
             attr3 = get_average_vision(graph_pop)
-            #last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr3, attr3_color, last_plot3)
+            last_plot3 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr3, attr3_color, last_plot3)
             attr4 = get_average_stam(graph_pop)
             last_plot4 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr4, attr4_color, last_plot4)
             attr5 = get_average_speed(graph_pop)
