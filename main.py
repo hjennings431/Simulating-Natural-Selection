@@ -32,8 +32,11 @@ def starthit():
         last_plot5 = (-1, -1)
         draw_axis(pygame, Screen, Width, Height, BdrRight, BdrBottom)
         Population = []
-        for i in range(NoOfBobs):
-            Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
+        if use_gen == False:
+            for i in range(NoOfBobs):
+                Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
+        else:
+            Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
         reset_hazards(all_coord_combos, L_hazards)
         gens_left = Generations
         count = TurnsPerGen
@@ -57,6 +60,7 @@ DisplaySpeed = 0            # Display update rate
 # Variables for the screen display
 Generations = 1000          # Define how many generations to run
 MovesPerTurn = 1            # Define how many moves to run per turn
+use_gen = False             # true = generate creatures with variance, false = gen all at 0.5
 TurnsPerGen = 50            # Define turns per generation
 Width=1010; Height=810      # Define width and height of the display (700x700)
 XWorld=60; YWorld=60        # Define size of the world
@@ -163,9 +167,11 @@ reset_food(all_coord_combos, L_food)
 generate_food(all_coord_combos, FoodPct, TallFoodPct, BushFoodPct, L_food)
 
 # Generate Population
-#Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
-for i in range(NoOfBobs):
-    Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5*multiplier), 0.5, 0, (random.randint(0, XWorld - 1),random.randint(0, YWorld - 1)), True, 0))
+if use_gen == False:
+    for i in range(NoOfBobs):
+        Population.append(Creature(0.5, 0.5, 0.5, 0.5, int(0.5 * multiplier), 0.5, 0, (random.randint(0, XWorld - 1), random.randint(0, YWorld - 1)), True, 0))
+else:
+    Population = generate_creatures(NoOfBobs, XWorld, YWorld, Population, True, TurnsPerGen, False)
 
 # Generate Hazards
 L_hazards = np.empty((XWorld,YWorld), dtype=object)
