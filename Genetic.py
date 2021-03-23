@@ -17,13 +17,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 0:
                 if plus_minus == 1:
                     phold = genome.return_neck_type()*100
-                    new_val = phold + 5
+                    new_val = phold + 10
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_neck_type()*100
-                    new_val = phold - 5
+                    new_val = phold - 10
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -33,13 +33,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 1:
                 if plus_minus == 1:
                     phold = genome.return_eagle_eye()*100
-                    new_val = phold + 5
+                    new_val = phold + 10
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_eagle_eye()*100
-                    new_val = phold - 5
+                    new_val = phold - 10
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -49,13 +49,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 2:
                 if plus_minus == 1:
                     phold = genome.return_speed()*100
-                    new_val = phold + 5
+                    new_val = phold + 10
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 5
+                    new_val = phold - 10
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -65,13 +65,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 3:
                 if plus_minus == 1:
                     phold = genome.return_max_stam()*100
-                    new_val = phold + 5
+                    new_val = phold + 10
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 5
+                    new_val = phold - 10
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
@@ -80,13 +80,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
             if i == 4:
                 if plus_minus == 1:
                     phold = genome.return_str()*100
-                    new_val = phold + 5
+                    new_val = phold + 10
                     if new_val > 100:
                         new_val = 100
                     new_val /= 100
                 else:
                     phold = genome.return_speed()*100
-                    new_val = phold - 5
+                    new_val = phold - 10
                     if new_val < 10:
                         new_val = 10
                     new_val /= 100
