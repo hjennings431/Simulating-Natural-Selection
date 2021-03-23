@@ -1,3 +1,4 @@
+import datetime
 import pygame
 import pygame.freetype
 from pygame.locals import *
@@ -7,6 +8,7 @@ from Objects import *
 from pygame_widgets import *
 from operator import attrgetter
 from Genetic import *
+import csv
 random.seed(10)
 running = True
 run_sim = True
@@ -42,6 +44,19 @@ def starthit():
         count = TurnsPerGen
         graph_points = (Generations/10)
         reset_fittest()
+        current_date_and_time = str(datetime.datetime.now())
+        extension = ".csv"
+        file_name = current_date_and_time + extension
+        file_name = file_name.replace(":", "_")
+        folder_path = 'C:/Users/jenni/PycharmProjects/pythonProject/Graphs/' + file_name
+        file = open(folder_path, 'x')
+        file.close()
+
+        with open(folder_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Neck Length", "Strength", "Vision", "Stamina", "Speed"])
+            writer.writerow("\n")
+        file.close()
         random.seed(10)
     pause_sim = False
 
@@ -179,6 +194,21 @@ L_hazards = np.empty((XWorld,YWorld), dtype=object)
 reset_hazards(all_coord_combos, L_hazards)
 generate_hazards(all_coord_combos, HazardPct, HazardTypes, L_hazards, hazard_toggles)
 
+# create and open the graph file
+current_date_and_time = str(datetime.datetime.now())
+extension = ".csv"
+file_name = current_date_and_time + extension
+file_name = file_name.replace(":", "_")
+folder_path = 'C:/Users/jenni/PycharmProjects/pythonProject/Graphs/' + file_name
+file = open(folder_path, 'x')
+file.close()
+
+with open(folder_path, 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Neck Length", "Strength", "Vision", "Stamina", "Speed"])
+    writer.writerow("\n")
+file.close()
+
 # Just keep running until some event(s)
 count = TurnsPerGen
 gens_left = Generations
@@ -238,6 +268,11 @@ while running:
             attr5 = get_average_speed(graph_pop)
             last_plot5 = update_graph(pygame, Screen, Width, Height, BdrRight, BdrBottom, (Generations/10), graph_points, attr5, attr5_color, last_plot5)
             graph_points -= 1
+            with open(folder_path, 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([attr1, attr2, attr3, attr4, attr5])
+                writer.writerow("\n")
+            file.close()
         # reset the graph if the graph has reached the edge
         if graph_points <= 0:
             if gens_left <= 0:
