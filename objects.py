@@ -153,10 +153,8 @@ class Creature:
                 self.eat_food(L_food, new_pos_x, new_pos_y, can_eat)
             # Resolves hazards on new tile
             self.check_hazard(L_hazards, new_pos_x, new_pos_y)
-            if self.speed <=0.2 :
-                pass
             if self.speed >= 0.7:
-                self.remaining_moves -=2
+                self.remaining_moves -=1
             else:
                 self.remaining_moves -=1
 
@@ -508,14 +506,12 @@ def creature_fight(Population, fight_card):
         # get the total roll and roll for a probability that determines the winner
         total = creature1_str + creature2_str
         if creature1_str > creature2_str:
-            total -= 10
-            c_mod = 10
+            total -= 20
         if creature2_str > creature1_str:
-            total += 10
-            c_mod = -10
+            total += 20
         roll = random.randint(1, total)
         # c1 winner
-        if roll <= (creature1_str + c_mod):
+        if roll <= creature1_str:
             # winner +1 fit -2 moves
             #diff = abs(round(creature1_str)-(round(creature2_str)))
             #diff /= 100
