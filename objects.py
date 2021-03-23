@@ -154,7 +154,7 @@ class Creature:
             # Resolves hazards on new tile
             self.check_hazard(L_hazards, new_pos_x, new_pos_y)
             if self.speed >= 0.7:
-                self.remaining_moves -=1
+                self.remaining_moves -=2
             else:
                 self.remaining_moves -=1
 
