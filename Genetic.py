@@ -220,14 +220,40 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
         del copy_new_population[p1_index]
         del copy_new_population[p2_index-1]
     return(children)
+# tournament selection: picks 2 random solutions and returns the best one to parents and removes it from future selections
+def selection(copy, cutoff):
+    parents = []
+    for i in range(cutoff):
+        length = (len(copy) - 1)
+        index1 = random.randint(0, length)
+        index2 = random.randint(0, length)
+        while index1 == index2:
+            index2 = random.randint(0, length)
 
+        if copy[index1].return_fitness() > copy[index2].return_fitness():
+            parents.append(copy[index1])
+            del copy[index1]
+        elif copy[index1].return_fitness() < copy[index2].return_fitness():
+            parents.append(copy[index2])
+            del copy[index2]
+        else:
+            coin_flip = random.randint(0,1)
+            if coin_flip == 0:
+                parents.append(copy[index1])
+                del copy[index1]
+            else:
+                parents.append(copy[index2])
+                del copy[index2]
+    print("length of parents", len(parents))
+    return(parents)
 ############################################################################################################
 # Genetic Algorithm to get a new Population
 ############################################################################################################
 def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_divest):
     new_population = []
-    copy = []
     copy2 = []
+    parents = []
+    copy_for_selection = []
     # sort the pop based on fitness
     Population.sort(key = attrgetter('fitness'), reverse=True)
     #check for new best
@@ -237,18 +263,19 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_
     if NoOfBobs > len(Population):
         creatures_to_add = NoOfBobs - len(Population)
         Population = generate_creatures(creatures_to_add, XW, YW, Population, False, TurnsPerGen, False, max_divest)
-    # passing the top 50% solutions down to the next generation (They survived)
+    # using elitist selection and passing the top 50% solutions down to the next generation (They survived)
     for i in range(cutoff):
         new_population.append(Population[i])
-        # mutate the parents if they have a low fitness to avoid stagnation
+    # Using tournament selection to get parents
+    copy_for_selection = Population
+    parents = selection(copy_for_selection, cutoff)
+    # mutate the parents if they have eaten no food to avoid stagnation
     for i in range(len(new_population)):
         # if a creature in the top 50% gets no food, mutates their neck so that we can push the pop in a direction that will provide a vioable solution
         if new_population[i].return_food_ate() == 0:
             new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
-    for i in range(len(new_population)):
-        copy.append(new_population[i])
-    children = crossover(copy, XW, YW,TurnsPerGen, Mut_chance)
+    children = crossover(parents, XW, YW,TurnsPerGen, Mut_chance)
     # convert genomes in children to creatures in new pop
     for i in range(len(children)):
         new_population.append(children[i])
@@ -260,6 +287,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_
     for i in range(len(Population)):
         Population[i].balance_stats(max_divest, TurnsPerGen)
     return(Population, fittest)
+
 
 ############################################################################################################
 # Function to mutate neck types if creatures are getting unable to reach any food
