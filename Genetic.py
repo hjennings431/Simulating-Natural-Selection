@@ -223,28 +223,18 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
 # tournament selection: picks 2 random solutions and returns the best one to parents and removes it from future selections
 def selection(copy, cutoff):
     parents = []
+    t_size = 5 # amount of participants in each tourney
     for i in range(cutoff):
+        tourney_participants = []
+        tourney_indexes = []
         length = (len(copy) - 1)
-        index1 = random.randint(0, length)
-        index2 = random.randint(0, length)
-        while index1 == index2:
-            index2 = random.randint(0, length)
-
-        if copy[index1].return_fitness() > copy[index2].return_fitness():
-            parents.append(copy[index1])
-            del copy[index1]
-        elif copy[index1].return_fitness() < copy[index2].return_fitness():
-            parents.append(copy[index2])
-            del copy[index2]
-        else:
-            coin_flip = random.randint(0,1)
-            if coin_flip == 0:
-                parents.append(copy[index1])
-                del copy[index1]
-            else:
-                parents.append(copy[index2])
-                del copy[index2]
-    print("length of parents", len(parents))
+        for j in range(1,t_size):
+            index = random.randint(0,length) # random gen indexes and check for dupes
+            while index in tourney_indexes:
+                index = random.randint(0, length)
+            tourney_participants.append(copy[index])
+        tourney_participants.sort(key=attrgetter('fitness'), reverse=True)
+        parents.append(tourney_participants[0])
     return(parents)
 ############################################################################################################
 # Genetic Algorithm to get a new Population
