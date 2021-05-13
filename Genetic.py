@@ -96,9 +96,13 @@ def mutation(genome, TurnsPerGen, Mut_chance):
 ############################################################################################################
 # CrossOver function
 ############################################################################################################
-def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
+def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance, NoOfBobs, len_pop):
     children = []
-    for i in range(int(len(copy_new_population)/2)):
+    temp = len(copy_new_population)
+    print(len(copy_new_population))
+    iter = temp / 2
+    iter = int(iter)
+    for i in range(iter):
         r_range = len(copy_new_population) - 1
         p1_index = random.randint(0, r_range)
         p2_index = random.randint(0, r_range)
@@ -224,6 +228,7 @@ def crossover(copy_new_population, XW, YW, TurnsPerGen, Mut_chance):
 def selection(copy, cutoff):
     parents = []
     t_size = 5 # amount of participants in each tourney
+    cutoff *= 4
     for i in range(cutoff):
         tourney_participants = []
         tourney_indexes = []
@@ -249,7 +254,7 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_
     #check for new best
     if Population[0].return_fitness() > fittest.return_fitness():
         fittest = Creature(Population[0].return_neck_type(), Population[0].return_eagle_eye(), Population[0].return_speed(), Population[0].return_max_stam(), 0, Population[0].return_str(), Population[0].return_fitness(), (0,0), False, 0)
-    cutoff = round(NoOfBobs / 2)
+    cutoff = round(NoOfBobs / 5)
     if NoOfBobs > len(Population):
         creatures_to_add = NoOfBobs - len(Population)
         Population = generate_creatures(creatures_to_add, XW, YW, Population, False, TurnsPerGen, False, max_divest)
@@ -265,7 +270,8 @@ def genetic(Population, NoOfBobs, fittest, XW, YW, TurnsPerGen, Mut_chance, max_
         if new_population[i].return_food_ate() == 0:
             new_population = mutate_neck(new_population, Mut_chance)
     # performing crossover and mutation to get the last 50% of the population
-    children = crossover(parents, XW, YW,TurnsPerGen, Mut_chance)
+    len_pop = len(Population)
+    children = crossover(parents, XW, YW,TurnsPerGen, Mut_chance, NoOfBobs, len_pop)
     # convert genomes in children to creatures in new pop
     for i in range(len(children)):
         new_population.append(children[i])
