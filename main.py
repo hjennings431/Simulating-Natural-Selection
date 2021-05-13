@@ -101,7 +101,7 @@ pygame.display.set_icon(game_icon)
 pygame.display.set_caption("Natural Selection Simulator")
 # NoOfBobs Slider
 NoOfBobs_WhereY = 10
-NoOfBobs_slide = Slider(Screen, 10, NoOfBobs_WhereY+30, 190, 3, handleRadius=5, min=10, max=1000, step=10, initial=NoOfBobs, handleColour=(slider_handle_color), colour=(slider_color))
+NoOfBobs_slide = Slider(Screen, 10, NoOfBobs_WhereY+30, 190, 3, handleRadius=5, min=10, max=1000, step=20, initial=NoOfBobs, handleColour=(slider_handle_color), colour=(slider_color))
 NoOfBobs_label = TextBox(Screen, 10, NoOfBobs_WhereY, 100, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 NoOfBobs_value = TextBox(Screen, 150, NoOfBobs_WhereY, 50, 24, fontSize=24, colour=(background_color), textColour=slider_text_color, borderThickness=0)
 # Turns Per Generation Slider
@@ -212,6 +212,9 @@ file.close()
 # Just keep running until some event(s)
 count = TurnsPerGen
 gens_left = Generations
+
+
+
 graph_points = Generations/10
 stop_count = 0
 while running:
